@@ -1,6 +1,6 @@
 # Проект «Большое путешествие»
 
-* Студент: [Дмитрий Макареев](https://up.htmlacademy.ru/ecmascript-individual/2/user/2310483).
+* Студент: [Дмитрий Макареев](https://up.htmlacademy.ru/ecmascript-individual/2/user/2310483)
 * Наставник: [Станислав Михайлов](https://htmlacademy.ru/profile/id139638).
 
 ---
