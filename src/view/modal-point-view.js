@@ -1,5 +1,4 @@
 import { createElement } from '../render.js';
-import DateServices from '../api/services/date-services.js';
 
 const modalPointTemplate = (data) => {
   const {eventTypes, currentType, destinationsList} = data;
