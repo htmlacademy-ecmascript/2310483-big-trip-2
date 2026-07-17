@@ -1,7 +1,7 @@
 import { createElement } from '../render.js';
 
 const modalPointTemplate = (data) => {
-  const {eventTypes, currentType, destinationsList} = data;
+  const {eventTypes, currentType, destinationsList, currentDestination, offersList} = data;
 
   return `
     <li class="trip-events__item">
@@ -50,6 +50,28 @@ const modalPointTemplate = (data) => {
           <button class="event__reset-btn" type="reset">Cancel</button>
         </header>
         <section class="event__details">
+          ${offersList && `<section class="event__section  event__section--offers">
+              <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+              <div class="event__available-offers">
+                ${(offersList.map((offerOption) => `<div class="event__offer-selector">
+                      <input class="event__offer-checkbox  visually-hidden" id="${offerOption.id}" type="checkbox" name="${offerOption.value}">
+                      <label class="event__offer-label" for="${offerOption.id}">
+                        <span class="event__offer-title">${offerOption.title}</span>
+                        &plus;&euro;&nbsp;
+                        <span class="event__offer-price">${offerOption.price}</span>
+                      </label>
+                  </div>`))}
+              </div>
+            </section>`}
+          ${currentDestination && `<section class="event__section  event__section--destination">
+            <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+            <p class="event__destination-description">${currentDestination.description}</p>
+            <div class="event__photos-container">
+            <div class="event__photos-tape">
+              ${currentDestination.pictures.map((photo) => `<img class="event__photo" src="${photo.url}" alt="${photo.alt}">`).join('')}
+            </div>
+            </div>
+          </section>`}
         </section>
       </form>
     </li>
