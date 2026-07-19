@@ -54,7 +54,20 @@ const SortOptions = [
   }
 ];
 
+const EventTypes = [
+  'flight',
+  'taxi',
+  'check-in',
+  'sightseeing',
+  'drive',
+  'bus',
+  'ship',
+  'train',
+  'restaurant'
+];
+
 export {
   FiltersOptions,
-  SortOptions
+  SortOptions,
+  EventTypes
 };
