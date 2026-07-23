@@ -1,4 +1,4 @@
-import {createElement} from '../../render.js';
+import AbstractView from '../../framework/view/abstract-view.js';
 import DateServices from '../../api/services/date-services.js';
 
 const createTripEventItemTemplate = (data) => {
@@ -46,20 +46,15 @@ const createTripEventItemTemplate = (data) => {
   </li>`);
 };
 
-export default class TripEventItemView {
+export default class TripEventItemView extends AbstractView {
+  #data = null;
+
   constructor(data) {
-    this.data = data;
-    this.element = null;
+    super();
+    this.#data = data;
   }
 
-  getTemplate() {
-    return createTripEventItemTemplate(this.data);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
+  get template() {
+    return createTripEventItemTemplate(this.#data);
   }
 }

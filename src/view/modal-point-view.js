@@ -1,6 +1,6 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
-const modalPointTemplate = (data) => {
+const createModalPointTemplate = (data) => {
   const {eventTypes, currentType, destinationsList, currentDestination, offersList} = data;
 
   return `
@@ -78,19 +78,15 @@ const modalPointTemplate = (data) => {
   `;
 };
 
-export default class ModalPointView {
+export default class ModalPointView extends AbstractView {
+  #data = null;
+
   constructor(data) {
-    this.data = data;
+    super();
+    this.#data = data;
   }
 
-  getTemplate() {
-    return modalPointTemplate(this.data);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
+  get template() {
+    return createModalPointTemplate(this.#data);
   }
 }
