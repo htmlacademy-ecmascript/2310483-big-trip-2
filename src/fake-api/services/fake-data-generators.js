@@ -31,9 +31,9 @@ const eventPointDataGenerator = () => ({
   basePrice: getRandomNumber(20, 1000),
   dateFrom: new Date(Date.now()),
   dateTo: new Date(Date.now() + getRandomNumber(5000, 60000000)),
-  destination: cities[getRandomNumber(0, cities.length - 1)],
+  destinationId: citiesListGenerator()[getRandomNumber(0, cities.length - 1)].id,
   isFavorite: Math.random() < 0.5,
-  offers: Array.from({length: getRandomNumber(1, 5)}, () => offersOptions[getRandomNumber(0, offersOptions.length - 1)]),
+  offersIds: Array.from({length: getRandomNumber(1, 5)}, () => offersOptions[getRandomNumber(0, offersOptions.length - 1)].id),
   type: EventTypes[getRandomNumber(0, EventTypes.length - 1)],
 });
 

@@ -1,19 +1,24 @@
-import {createElement} from '../../render.js';
+import AbstractView from '../../framework/view/abstract-view.js';
 import DateServices from '../../api/services/date-services.js';
 
-const createTripEventItemTemplate = (data) => {
-  const {type, destination, dateFrom, dateTo, basePrice, offers, isFavorite} = data;
+const createTripEventItemTemplate = ({point, destinations, offers}) => {
+  const {type, destinationId, dateFrom, dateTo, basePrice, offersIds, isFavorite} = point;
+
   const {getISODate, getISODateTime, getMonthDay, getHoursMinutes, getDuration} = new DateServices();
+  const selectedOffers = offers.filter((offer) => offersIds.includes(offer.id));
+  const destination = destinations.find((item) => item.id === destinationId).name;
+
   const offersList = offers.length > 0 ? `
     <h4 class="visually-hidden">Offers:</h4>
     <ul class="event__selected-offers">
-      ${offers.map((offer) => `<li class="event__offer">
+      ${selectedOffers.map((offer) => `<li class="event__offer">
         <span class="event__offer-title">${offer.title}</span>
         &plus;&euro;&nbsp;
         <span class="event__offer-price">${offer.price}</span>
       </li>`).join('')}
     </ul>
   ` : '';
+
   return (`<li class="trip-events__item">
     <div class="event">
       <time class="event__date" datetime="${getISODate(dateFrom)}" }">${getMonthDay(dateFrom)}</time>
@@ -46,20 +51,30 @@ const createTripEventItemTemplate = (data) => {
   </li>`);
 };
 
-export default class TripEventItemView {
-  constructor(data) {
-    this.data = data;
-    this.element = null;
+export default class TripEventItemView extends AbstractView {
+  #point = null;
+  #destinations = null;
+  #offers = null;
+  #handleClick = null;
+
+  constructor({point, destinations, offers}) {
+    super();
+    this.#point = point;
+    this.#destinations = destinations;
+    this.#offers = offers;
   }
 
-  getTemplate() {
-    return createTripEventItemTemplate(this.data);
+  get template() {
+    return createTripEventItemTemplate({point: this.#point, destinations: this.#destinations, offers: this.#offers});
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
+  setRollupClickHandler(callback) {
+    this.#handleClick = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#handlerClick);
   }
+
+  #handlerClick = (evt) => {
+    evt.preventDefault();
+    this.#handleClick();
+  };
 }
