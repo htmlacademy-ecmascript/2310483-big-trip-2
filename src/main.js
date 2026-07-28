@@ -1,13 +1,12 @@
-import Presenter from './presenter/presenter.js';
+import MainPresenter from './presenters/main-presenter.js';
 import EventPointsModel from './fake-api/models/event-points-model.js';
-import ModalPointModel from './fake-api/models/modal-point-model.js';
+import PointEditorModel from './fake-api/models/point-editor-model.js';
 
 const containers = {
   filters: document.querySelector('.trip-controls__filters'),
   main: document.querySelector('.trip-events'),
 };
 const eventPoints = new EventPointsModel().getEventPointList();
-const modalPointModel = new ModalPointModel();
-
-const presenter = new Presenter(containers, eventPoints, modalPointModel);
+const pointEditorModel = new PointEditorModel();
+const presenter = new MainPresenter(containers, eventPoints, pointEditorModel);
 presenter.init();

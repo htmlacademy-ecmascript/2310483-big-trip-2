@@ -16,7 +16,6 @@ const photos = [
     url: 'img/photos/5.jpg',
     description: 'Event photo'
   },
-
 ];
 
 const offersOptions = [
