@@ -16,7 +16,6 @@ const createPointEditorTemplate = (data) => {
     dateTo,
     destinationId,
     basePrice,
-    isFavorite,
     offersIds
   } = point;
   const {getDateTime} = new DateServices();
@@ -38,9 +37,9 @@ const createPointEditorTemplate = (data) => {
             <div class="event__type-list">
               <fieldset class="event__type-group">
                 <legend class="visually-hidden">Event type</legend>
-                ${ eventTypes.map((type, index) => `<div class="event__type-item">
-                  <input id="event-type-${type}-${index}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
-                  <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-${index}">${type}</label>
+                ${ eventTypes.map((t, index) => `<div class="event__type-item">
+                  <input id="event-type-${this}-${index}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
+                  <label class="event__type-label  event__type-label--${this}" for="event-type-${this}-${index}">${this}</label>
                 </div>`).join('') }
               </fieldset>
             </div>
