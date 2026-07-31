@@ -1,4 +1,4 @@
-import TripEventItemView from '../view/trip-event-list-view/trip-event-item-view.js';
+import EventItemView from '../view/event-list-view/event-item-view.js';
 import PointEditorView from '../view/point-editor-view.js';
 import { render, replace } from '../framework/render.js';
 
@@ -15,7 +15,7 @@ export default class PointPresenter {
   }
 
   init() {
-    this.#pointComponent = new TripEventItemView(
+    this.#pointComponent = new EventItemView(
       {
         point: this.point,
         destinations: this.destinations,
@@ -63,3 +63,9 @@ export default class PointPresenter {
     }
   };
 }
+
+/*
+  1. блокировка фильтров
+  2. пустая страница без точек (включая сортировку)
+*/
+

@@ -6,7 +6,12 @@ const containers = {
   filters: document.querySelector('.trip-controls__filters'),
   main: document.querySelector('.trip-events'),
 };
-const eventPoints = new EventPointsModel().getEventPointList();
+const points = new EventPointsModel().getEventPointList();
 const pointEditorModel = new PointEditorModel();
-const presenter = new MainPresenter(containers, eventPoints, pointEditorModel);
+const presenter = new MainPresenter(
+  {
+    containers,
+    points,
+    pointEditorModel
+  });
 presenter.init();
