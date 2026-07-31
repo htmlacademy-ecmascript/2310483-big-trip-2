@@ -14,15 +14,15 @@ export default class MainPresenter {
   #pointEditorData = null;
   #emptyListComponent = new EmptyListView();
 
-  constructor({containers, eventsPoints, pointEditorModel}) {
+  constructor({containers, points, pointEditorModel}) {
     this.#mainContainer = containers.main;
     this.#filtersContainer = containers.filters;
-    this.#points = eventsPoints;
+    this.#points = points;
     this.#pointEditorData = pointEditorModel.data;
   }
 
   init() {
-    render(new FiltersView(FiltersOptions), this.#filtersContainer);
+    render(new FiltersView(FiltersOptions, this.#points), this.#filtersContainer);
     render(new SortView(SortOptions), this.#mainContainer);
     render(this.#eventListComponent, this.#mainContainer);
     this.#points.forEach((point) => {
@@ -36,4 +36,3 @@ export default class MainPresenter {
     });
   }
 }
-
