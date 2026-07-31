@@ -1,7 +1,7 @@
 import AbstractView from '../../framework/view/abstract-view.js';
 import DateServices from '../../api/services/date-services.js';
 
-const createTripEventItemTemplate = ({point, destinations, offers}) => {
+const createEventItemTemplate = ({point, destinations, offers}) => {
   const {type, destinationId, dateFrom, dateTo, basePrice, offersIds, isFavorite} = point;
 
   const {getISODate, getISODateTime, getMonthDay, getHoursMinutes, getDuration} = new DateServices();
@@ -51,7 +51,7 @@ const createTripEventItemTemplate = ({point, destinations, offers}) => {
   </li>`);
 };
 
-export default class TripEventItemView extends AbstractView {
+export default class EventItemView extends AbstractView {
   #point = null;
   #destinations = null;
   #offers = null;
@@ -65,7 +65,7 @@ export default class TripEventItemView extends AbstractView {
   }
 
   get template() {
-    return createTripEventItemTemplate({point: this.#point, destinations: this.#destinations, offers: this.#offers});
+    return createEventItemTemplate({point: this.#point, destinations: this.#destinations, offers: this.#offers});
   }
 
   setRollupClickHandler(callback) {
