@@ -1,9 +1,9 @@
 import { citiesListGenerator, offersListGenerator } from '../services/fake-data-generators.js';
-import { EventTypes } from '../../api/constants.js';
+import { EVENT_TYPES } from '../../api/constants.js';
 
 export default class ModalPointModel {
   #destinationsList = citiesListGenerator();
-  #offersData = offersListGenerator(EventTypes);
+  #offersData = offersListGenerator(EVENT_TYPES);
 
 
   get data() {

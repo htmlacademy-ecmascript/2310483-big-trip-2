@@ -4,63 +4,131 @@ import { render, replace } from '../framework/render.js';
 
 
 export default class PointPresenter {
+  #container = null;
   #pointComponent = null;
+  #destinations = null;
+  #offersData = null;
+  #point = null;
   #editorComponent = null;
+  #onDataUpdate = null;
+  #onModeChange = null;
+  #isEditMode = false;
 
-  constructor(container, point, destinations, offersData) {
-    this.container = container;
-    this.point = point;
-    this.destinations = destinations;
-    this.offersData = offersData;
+  constructor({container, point, destinations, offersData, onDataUpdate, onModeChange}) {
+    this.#container = container;
+    this.#point = point;
+    this.#destinations = destinations;
+    this.#offersData = offersData;
+    this.#onDataUpdate = onDataUpdate;
+    this.#onModeChange = onModeChange;
   }
 
   init() {
     this.#pointComponent = new EventItemView(
       {
-        point: this.point,
-        destinations: this.destinations,
-        offers: this.offersData.find((item) => item.type === this.point.type).offers
+        point: this.#point,
+        destinations: this.#destinations,
+        offers: this.#offersData.find((item) => item.type === this.#point.type).offers
       }
     );
 
     this.#editorComponent = new PointEditorView({
-      point: this.point,
+      point: this.#point,
       referenceData: {
-        destinations: this.destinations,
-        offersData: this.offersData
+        destinations: this.#destinations,
+        offersData: this.#offersData
       }
     });
-    render(this.#pointComponent, this.container);
+    render(this.#pointComponent, this.#container);
 
-    this.#pointComponent.setRollupClickHandler(() => {
-      replace(this.#editorComponent, this.#pointComponent);
-      document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#pointComponent.setRollupClickHandler(this.#handleEditOpen);
+    this.#pointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
+    this.#editorComponent.setRollupClickHandler(this.#handleEditClose);
+    this.#editorComponent.setSubmitClickHandler(this.#handleSubmit);
+    this.#editorComponent.setDeleteClickHandler(this.#handleDelete);
+  }
+
+  update(point) {
+    this.#point = point;
+
+    const prevPointComponent = this.#pointComponent;
+    /*     const prevEditorComponent = this.#editorComponent;
+    */
+    this.#pointComponent = new EventItemView(
+      {
+        point: this.#point,
+        destinations: this.#destinations,
+        offers: this.#offersData.find((item) => item.type === this.#point.type).offers
+      }
+    );
+
+    this.#editorComponent = new PointEditorView({
+      point: this.#point,
+      referenceData: {
+        destinations: this.#destinations,
+        offersData: this.#offersData
+      }
     });
 
-    this.#editorComponent.setRollupClickHandler(() => {
-      replace(this.#pointComponent, this.#editorComponent);
-    });
+    replace(this.#pointComponent, prevPointComponent);
 
-    this.#editorComponent.setSubmitClickHandler(() => {
-      replace(this.#pointComponent, this.#editorComponent);
-    });
+    this.#pointComponent.setRollupClickHandler(this.#handleEditOpen);
+    this.#pointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
+    this.#editorComponent.setRollupClickHandler(this.#handleEditClose);
+    this.#editorComponent.setSubmitClickHandler(this.#handleSubmit);
+    this.#editorComponent.setDeleteClickHandler(this.#handleDelete);
+  }
 
-    this.#editorComponent.setDeleteClickHandler(() => {
-      replace(this.#pointComponent, this.#editorComponent);
-    });
+  resetMode() {
+    if (this.#isEditMode) {
+      this.#replaceFormToPoint();
+    }
+  }
+
+  #replacePointToForm() {
+    replace(this.#editorComponent, this.#pointComponent);
+    document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#isEditMode = true;
   }
 
   #replaceFormToPoint() {
     replace(this.#pointComponent, this.#editorComponent);
-
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#isEditMode = false;
   }
+
+  #handleEditOpen = () => {
+    this.#onModeChange();
+    this.#replacePointToForm();
+  };
+
+  #handleEditClose = () => {
+    this.#replaceFormToPoint();
+  };
+
+  #handleSubmit = (evt) => {
+    evt.preventDefault();
+    this.#replaceFormToPoint();
+  };
+
+  #handleDelete = () => {
+    this.#replaceFormToPoint();
+  };
 
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
       this.#replaceFormToPoint();
     }
+  };
+
+  #handleFavoriteClick = () => {
+    this.#onDataUpdate(
+      {
+        ...this.#point,
+        isFavorite: !this.#point.isFavorite
+      }
+    );
   };
 }
 

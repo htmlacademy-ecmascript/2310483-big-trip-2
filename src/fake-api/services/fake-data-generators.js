@@ -1,6 +1,6 @@
-import {cities, photos, offersOptions} from '../fake-data.js';
+import {CITIES, PHOTOS, OffersOptions} from '../fake-data.js';
 import {getRandomNumber} from '../../utils/functions.js';
-import {EventTypes} from '../../api/constants.js';
+import {EVENT_TYPES} from '../../api/constants.js';
 
 const citiesListGenerator = () => {
   const descriptions = [
@@ -13,17 +13,17 @@ const citiesListGenerator = () => {
     'Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.'
   ];
 
-  return cities.map((city, index) => ({
+  return CITIES.map((city, index) => ({
     id: index,
     description: descriptions[getRandomNumber(0, descriptions.length - 1)],
     name: city,
-    pictures: Math.random() < 0.5 ? [] : Array.from({length: getRandomNumber(1, 5)}, () => photos[getRandomNumber(0, 4)]),
+    pictures: Math.random() < 0.5 ? [] : Array.from({length: getRandomNumber(1, 5)}, () => PHOTOS[getRandomNumber(0, 4)]),
   }));
 };
 
 const offersListGenerator = (eventTypes) => eventTypes.map((type) => ({
   type: type,
-  offers: offersOptions,
+  offers: OffersOptions,
 }));
 
 const eventPointDataGenerator = () => ({
@@ -31,10 +31,10 @@ const eventPointDataGenerator = () => ({
   basePrice: getRandomNumber(20, 1000),
   dateFrom: new Date(Date.now()),
   dateTo: new Date(Date.now() + getRandomNumber(5000, 60000000)),
-  destinationId: citiesListGenerator()[getRandomNumber(0, cities.length - 1)].id,
+  destinationId: citiesListGenerator()[getRandomNumber(0, CITIES.length - 1)].id,
   isFavorite: Math.random() < 0.5,
-  offersIds: Array.from({length: getRandomNumber(1, 5)}, () => offersOptions[getRandomNumber(0, offersOptions.length - 1)].id),
-  type: EventTypes[getRandomNumber(0, EventTypes.length - 1)],
+  offersIds: Array.from({length: getRandomNumber(1, 5)}, () => OffersOptions[getRandomNumber(0, OffersOptions.length - 1)].id),
+  type: EVENT_TYPES[getRandomNumber(0, EVENT_TYPES.length - 1)],
 });
 
 export {
