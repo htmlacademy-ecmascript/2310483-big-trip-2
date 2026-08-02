@@ -48,6 +48,37 @@ export default class PointPresenter {
     this.#editorComponent.setDeleteClickHandler(this.#handleDelete);
   }
 
+  update(point) {
+    this.#point = point;
+
+    const prevPointComponent = this.#pointComponent;
+    /*     const prevEditorComponent = this.#editorComponent;
+    */
+    this.#pointComponent = new EventItemView(
+      {
+        point: this.#point,
+        destinations: this.#destinations,
+        offers: this.#offersData.find((item) => item.type === this.#point.type).offers
+      }
+    );
+
+    this.#editorComponent = new PointEditorView({
+      point: this.#point,
+      referenceData: {
+        destinations: this.#destinations,
+        offersData: this.#offersData
+      }
+    });
+
+    replace(this.#pointComponent, prevPointComponent);
+
+    this.#pointComponent.setRollupClickHandler(this.#handleEditOpen);
+    this.#pointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
+    this.#editorComponent.setRollupClickHandler(this.#handleEditClose);
+    this.#editorComponent.setSubmitClickHandler(this.#handleSubmit);
+    this.#editorComponent.setDeleteClickHandler(this.#handleDelete);
+  }
+
   resetMode() {
     if (this.#isEditMode) {
       this.#replaceFormToPoint();
@@ -99,37 +130,6 @@ export default class PointPresenter {
       }
     );
   };
-
-  update(point) {
-    this.#point = point;
-
-    const prevPointComponent = this.#pointComponent;
-    const prevEditorComponent = this.#editorComponent;
-
-    this.#pointComponent = new EventItemView(
-      {
-        point: this.#point,
-        destinations: this.#destinations,
-        offers: this.#offersData.find((item) => item.type === this.#point.type).offers
-      }
-    );
-
-    this.#editorComponent = new PointEditorView({
-      point: this.#point,
-      referenceData: {
-        destinations: this.#destinations,
-        offersData: this.#offersData
-      }
-    });
-
-    replace(this.#pointComponent, prevPointComponent);
-
-    this.#pointComponent.setRollupClickHandler(this.#handleEditOpen);
-    this.#pointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
-    this.#editorComponent.setRollupClickHandler(this.#handleEditClose);
-    this.#editorComponent.setSubmitClickHandler(this.#handleSubmit);
-    this.#editorComponent.setDeleteClickHandler(this.#handleDelete);
-  }
 }
 
 /*
