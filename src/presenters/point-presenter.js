@@ -11,13 +11,16 @@ export default class PointPresenter {
   #point = null;
   #editorComponent = null;
   #onDataUpdate = null;
+  #onModeChange = null;
+  #isEditMode = false;
 
-  constructor({container, point, destinations, offersData, onDataUpdate}) {
+  constructor({container, point, destinations, offersData, onDataUpdate, onModeChange}) {
     this.#container = container;
     this.#point = point;
     this.#destinations = destinations;
     this.#offersData = offersData;
     this.#onDataUpdate = onDataUpdate;
+    this.#onModeChange = onModeChange;
   }
 
   init() {
@@ -38,31 +41,48 @@ export default class PointPresenter {
     });
     render(this.#pointComponent, this.#container);
 
-    this.#pointComponent.setRollupClickHandler(() => {
-      replace(this.#editorComponent, this.#pointComponent);
-      document.addEventListener('keydown', this.#escKeyDownHandler);
-    });
-
+    this.#pointComponent.setRollupClickHandler(this.#handleEditOpen);
     this.#pointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
+    this.#editorComponent.setRollupClickHandler(this.#handleEditClose);
+    this.#editorComponent.setSubmitClickHandler(this.#handleSubmit);
+    this.#editorComponent.setDeleteClickHandler(this.#handleDelete);
+  }
 
-    this.#editorComponent.setRollupClickHandler(() => {
-      replace(this.#pointComponent, this.#editorComponent);
-    });
+  resetMode() {
+    if (this.#isEditMode) {
+      this.#replaceFormToPoint();
+    }
+  }
 
-    this.#editorComponent.setSubmitClickHandler(() => {
-      replace(this.#pointComponent, this.#editorComponent);
-    });
-
-    this.#editorComponent.setDeleteClickHandler(() => {
-      replace(this.#pointComponent, this.#editorComponent);
-    });
+  #replacePointToForm() {
+    replace(this.#editorComponent, this.#pointComponent);
+    document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#isEditMode = true;
   }
 
   #replaceFormToPoint() {
     replace(this.#pointComponent, this.#editorComponent);
-
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#isEditMode = false;
   }
+
+  #handleEditOpen = () => {
+    this.#onModeChange();
+    this.#replacePointToForm();
+  };
+
+  #handleEditClose = () => {
+    this.#replaceFormToPoint();
+  };
+
+  #handleSubmit = (evt) => {
+    evt.preventDefault();
+    this.#replaceFormToPoint();
+  };
+
+  #handleDelete = () => {
+    this.#replaceFormToPoint();
+  };
 
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
@@ -102,27 +122,13 @@ export default class PointPresenter {
       }
     });
 
-    this.#pointComponent.setRollupClickHandler(() => {
-      replace(this.#editorComponent, this.#pointComponent);
-      document.addEventListener('keydown', this.#escKeyDownHandler);
-    });
-
-    this.#pointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
-
-    this.#editorComponent.setRollupClickHandler(() => {
-      replace(this.#pointComponent, this.#editorComponent);
-    });
-
-    this.#editorComponent.setSubmitClickHandler(() => {
-      replace(this.#pointComponent, this.#editorComponent);
-    });
-
-    this.#editorComponent.setDeleteClickHandler(() => {
-      replace(this.#pointComponent, this.#editorComponent);
-    });
-
     replace(this.#pointComponent, prevPointComponent);
-    replace(this.#editorComponent, prevEditorComponent);
+
+    this.#pointComponent.setRollupClickHandler(this.#handleEditOpen);
+    this.#pointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
+    this.#editorComponent.setRollupClickHandler(this.#handleEditClose);
+    this.#editorComponent.setSubmitClickHandler(this.#handleSubmit);
+    this.#editorComponent.setDeleteClickHandler(this.#handleDelete);
   }
 }
 

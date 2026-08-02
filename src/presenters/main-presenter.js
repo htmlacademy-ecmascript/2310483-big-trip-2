@@ -33,13 +33,20 @@ export default class MainPresenter {
           point,
           destinations: this.#pointEditorData.destinationsList,
           offersData: this.#pointEditorData.offersData,
-          onDataUpdate: this.#handlePointChange
+          onDataUpdate: this.#handlePointChange,
+          onModeChange: this.#handleEditorMode
         }
       );
       pointPresenter.init();
       this.#pointsPresenters.set(point.id, pointPresenter);
     });
   }
+
+  #handleEditorMode = () => {
+    this.#pointsPresenters.forEach((pointPresenter) => {
+      pointPresenter.resetMode();
+    });
+  };
 
   #handlePointChange = (updatedPoint) => {
     const pointIndex = this.#points.findIndex((point) => point.id === updatedPoint.id);
