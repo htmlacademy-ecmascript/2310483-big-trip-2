@@ -54,7 +54,7 @@ const SortOptions = [
   }
 ];
 
-const EventTypes = [
+const EVENT_TYPES = [
   'flight',
   'taxi',
   'check-in',
@@ -69,5 +69,5 @@ const EventTypes = [
 export {
   FiltersOptions,
   SortOptions,
-  EventTypes
+  EVENT_TYPES
 };

@@ -13,6 +13,7 @@ export default class MainPresenter {
   #points = null;
   #pointEditorData = null;
   #emptyListComponent = new EmptyListView();
+  #pointsPresenters = new Map();
 
   constructor({containers, points, pointEditorModel}) {
     this.#mainContainer = containers.main;
@@ -27,12 +28,32 @@ export default class MainPresenter {
     render(this.#eventListComponent, this.#mainContainer);
     this.#points.forEach((point) => {
       const pointPresenter = new PointPresenter(
-        this.#eventListComponent.element,
-        point,
-        this.#pointEditorData.destinationsList,
-        this.#pointEditorData.offersData
+        {
+          container: this.#eventListComponent.element,
+          point,
+          destinations: this.#pointEditorData.destinationsList,
+          offersData: this.#pointEditorData.offersData,
+          onDataUpdate: this.#handlePointChange
+        }
       );
       pointPresenter.init();
+      this.#pointsPresenters.set(point.id, pointPresenter);
     });
   }
+
+  #handlePointChange = (updatedPoint) => {
+    const pointIndex = this.#points.findIndex((point) => point.id === updatedPoint.id);
+
+    if (pointIndex === -1) {
+      return;
+    }
+
+    this.#points[pointIndex] = updatedPoint;
+
+    const pointPresenter = this.#pointsPresenters.get(updatedPoint.id);
+
+    if (pointPresenter) {
+      pointPresenter.update(updatedPoint);
+    }
+  };
 }

@@ -55,7 +55,6 @@ export default class EventItemView extends AbstractView {
   #point = null;
   #destinations = null;
   #offers = null;
-  #handleClick = null;
 
   constructor({point, destinations, offers}) {
     super();
@@ -68,13 +67,15 @@ export default class EventItemView extends AbstractView {
     return createEventItemTemplate({point: this.#point, destinations: this.#destinations, offers: this.#offers});
   }
 
-  setRollupClickHandler(callback) {
-    this.#handleClick = callback;
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#handlerClick);
+  get point() {
+    return this.#point;
   }
 
-  #handlerClick = (evt) => {
-    evt.preventDefault();
-    this.#handleClick();
-  };
+  setRollupClickHandler(callback) {
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', callback);
+  }
+
+  setFavoriteClickHandler(callback) {
+    this.element.querySelector('.event__favorite-btn').addEventListener('click', callback);
+  }
 }

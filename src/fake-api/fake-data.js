@@ -1,4 +1,4 @@
-const photos = [
+const PHOTOS = [
   {
     url: 'img/photos/1.jpg',
     description: 'Event photo'
@@ -18,7 +18,7 @@ const photos = [
   },
 ];
 
-const offersOptions = [
+const OffersOptions = [
   {
     id: 'event-offer-luggage-1',
     title: 'Add luggage',
@@ -69,7 +69,7 @@ const offersOptions = [
   },
 ];
 
-const cities = [
+const CITIES = [
   'Amsterdam',
   'Chamonix',
   'Geneva',
@@ -77,4 +77,4 @@ const cities = [
   'Brussel'
 ];
 
-export {photos, offersOptions, cities};
+export {PHOTOS, OffersOptions, CITIES};
