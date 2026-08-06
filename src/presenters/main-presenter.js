@@ -6,6 +6,7 @@ import SortOptionView from '../view/sort-view/sort-option-view.js';
 import { render } from '../framework/render.js';
 import { FiltersOptions, SortOptions, DEFAULT_SORT_OPTION } from '../api/constants.js';
 import PointPresenter from './point-presenter.js';
+import DateServices from '../api/services/date-services.js';
 
 export default class MainPresenter {
   #destinations = [];
@@ -14,6 +15,7 @@ export default class MainPresenter {
   #sourcedPoints = [];
   #mainContainer = null;
   #filtersContainer = null;
+  #dateServices = new DateServices();
 
   #eventListComponent = new EventListView();
   #emptyListComponent = new EmptyListView();
@@ -65,6 +67,7 @@ export default class MainPresenter {
   }
 
   #renderPoints() {
+    this.#sortPoints(this.#choosenSortOption);
     this.#points.forEach((point) => {
       const pointPresenter = new PointPresenter(
         {
@@ -91,21 +94,23 @@ export default class MainPresenter {
       case 'sort-day':
         this.#points.sort((a, b) => a.dateFrom.getTime() - b.dateFrom.getTime());
         break;
+      case 'sort-time':
+        this.#points.sort((a, b) => this.#dateServices.getDurationInMilliseconds(b.dateFrom, b.dateTo) - this.#dateServices.getDurationInMilliseconds(a.dateFrom, a.dateTo));
+        break;
       case 'sort-price':
         this.#points.sort((a, b) => b.basePrice - a.basePrice);
         break;
       default:
         this.#points = [...this.#sourcedPoints];
     }
-
-    this.#choosenSortOption = sortType;
   };
 
   #handleSortPoints = (sortType) => {
     if (this.#choosenSortOption === sortType) {
       return;
     }
-    this.#sortPoints(sortType);
+
+    this.#choosenSortOption = sortType;
     this.#clearPoints();
     this.#renderPoints();
   };
