@@ -65,7 +65,6 @@ export default class MainPresenter {
   }
 
   #renderPoints() {
-    this.#sortPoints(this.#choosenSortOption);
     this.#points.forEach((point) => {
       const pointPresenter = new PointPresenter(
         {
@@ -98,13 +97,15 @@ export default class MainPresenter {
       default:
         this.#points = [...this.#sourcedPoints];
     }
+
+    this.#choosenSortOption = sortType;
   };
 
   #handleSortPoints = (sortType) => {
     if (this.#choosenSortOption === sortType) {
       return;
     }
-    this.#choosenSortOption = sortType;
+    this.#sortPoints(sortType);
     this.#clearPoints();
     this.#renderPoints();
   };
