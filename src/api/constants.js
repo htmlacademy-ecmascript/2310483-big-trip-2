@@ -47,12 +47,14 @@ const SortOptions = [
     class: 'trip-sort__item--price'
   },
   {
-    id: 'sort-offer',
+    id: 'sort-offers',
     name: 'Offers',
-    value: 'sort-offer',
+    value: 'sort-offers',
     class: 'trip-sort__item--offer'
   }
 ];
+
+const DEFAULT_SORT_OPTION = SortOptions[0].value;
 
 const EVENT_TYPES = [
   'flight',
@@ -69,5 +71,6 @@ const EVENT_TYPES = [
 export {
   FiltersOptions,
   SortOptions,
+  DEFAULT_SORT_OPTION,
   EVENT_TYPES
 };

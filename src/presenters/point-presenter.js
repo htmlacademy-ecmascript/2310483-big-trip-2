@@ -1,6 +1,6 @@
 import EventItemView from '../view/event-list-view/event-item-view.js';
 import PointEditorView from '../view/point-editor-view.js';
-import { render, replace } from '../framework/render.js';
+import { render, replace, remove } from '../framework/render.js';
 
 
 export default class PointPresenter {
@@ -46,6 +46,14 @@ export default class PointPresenter {
     this.#editorComponent.setRollupClickHandler(this.#handleEditClose);
     this.#editorComponent.setSubmitClickHandler(this.#handleSubmit);
     this.#editorComponent.setDeleteClickHandler(this.#handleDelete);
+  }
+
+  destroy() {
+    if (this.#isEditMode) {
+      this.#replaceFormToPoint();
+    }
+    remove(this.#pointComponent);
+    remove(this.#editorComponent);
   }
 
   update(point) {

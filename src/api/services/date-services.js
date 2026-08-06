@@ -43,11 +43,15 @@ export default class DateSevices {
   }
 
   getDuration(start, end) {
-    const startInMinutes = start.getHours() * 60 + start.getMinutes();
-    const endInMinutes = end.getHours() * 60 + end.getMinutes();
-    const durationHours = Math.floor((endInMinutes - startInMinutes) / 60);
-    const durationMinutes = (endInMinutes - startInMinutes) % 60;
+    const startInMilliseconds = start.getTime();
+    const endInMilliseconds = end.getTime();
+    const durationHours = Math.floor((endInMilliseconds - startInMilliseconds) / 3600000);
+    const durationMinutes = Math.floor((endInMilliseconds - startInMilliseconds) % 3600000 / 60000);
 
     return `${durationHours >= 1 ? `${String(durationHours).padStart(2, '0')}H` : ''} ${String(durationMinutes).padStart(2, '0')}M`;
+  }
+
+  getDurationInMilliseconds(start, end) {
+    return end.getTime() - start.getTime();
   }
 }
