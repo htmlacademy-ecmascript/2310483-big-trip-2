@@ -1,5 +1,4 @@
 import AbstractView from '../../framework/view/abstract-view.js';
-import { DEFAULT_SORT_OPTION } from '../../api/constants.js';
 
 const createSortOptionTemplate = (sortOption) => `
   <div class="trip-sort__item  ${sortOption.class}">
@@ -8,7 +7,6 @@ const createSortOptionTemplate = (sortOption) => `
       type="radio"
       name="trip-sort"
       value="${sortOption.value}"
-      ${sortOption.value === DEFAULT_SORT_OPTION ? 'checked' : ''}
     >
     <label class="trip-sort__btn" for="${sortOption.id}">${sortOption.name}</label>
   </div>
