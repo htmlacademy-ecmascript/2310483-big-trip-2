@@ -26,16 +26,19 @@ const offersListGenerator = (eventTypes) => eventTypes.map((type) => ({
   offers: OffersOptions,
 }));
 
-const eventPointDataGenerator = () => ({
-  id: `${getRandomNumber(1, 1000)}`,
-  basePrice: getRandomNumber(20, 1000),
-  dateFrom: new Date(Date.now() + getRandomNumber(1000, 300000)),
-  dateTo: new Date(Date.now() + getRandomNumber(300000, 60000000)),
-  destinationId: citiesListGenerator()[getRandomNumber(0, CITIES.length - 1)].id,
-  isFavorite: Math.random() < 0.5,
-  offersIds: Array.from({length: getRandomNumber(1, 5)}, () => OffersOptions[getRandomNumber(0, OffersOptions.length - 1)].id),
-  type: EVENT_TYPES[getRandomNumber(0, EVENT_TYPES.length - 1)],
-});
+const eventPointDataGenerator = () => {
+  const offersIds = new Set(Array.from({length: getRandomNumber(1, 5)}, () => OffersOptions[getRandomNumber(0, OffersOptions.length - 1)].id));
+  return ({
+    id: `${getRandomNumber(1, 1000)}`,
+    basePrice: getRandomNumber(20, 1000),
+    dateFrom: new Date(Date.now() + getRandomNumber(1000, 300000)),
+    dateTo: new Date(Date.now() + getRandomNumber(300000, 60000000)),
+    destinationId: citiesListGenerator()[getRandomNumber(0, CITIES.length - 1)].id,
+    isFavorite: Math.random() < 0.5,
+    offersIds: Array.from(offersIds),
+    type: EVENT_TYPES[getRandomNumber(0, EVENT_TYPES.length - 1)],
+  });
+};
 
 export {
   offersListGenerator,
