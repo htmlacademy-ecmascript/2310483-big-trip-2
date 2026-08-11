@@ -32,12 +32,6 @@ const OffersOptions = [
     price: '80'
   },
   {
-    id: 'event-offer-switch-to-comfort',
-    title: 'Switch to comfort',
-    value: 'event-offer-switch-to-comfort',
-    price: '80'
-  },
-  {
     id: 'event-offer-book-tickets',
     title: 'Book tickets',
     value: 'event-offer-book-tickets',
@@ -50,7 +44,7 @@ const OffersOptions = [
     price: '200'
   },
   {
-    id: '6',
+    id: 'event-offer-luggage-3',
     title: 'Switch to comfort class',
     value: 'event-offer-luggage-3',
     price: '30'

@@ -1,5 +1,5 @@
 import EventItemView from '../view/event-list-view/event-item-view.js';
-import PointEditorView from '../view/point-editor-view.js';
+import PointEditorView from '../view/editor-view.js';
 import { render, replace, remove } from '../framework/render.js';
 
 
@@ -60,8 +60,9 @@ export default class PointPresenter {
     this.#point = point;
 
     const prevPointComponent = this.#pointComponent;
-    /*     const prevEditorComponent = this.#editorComponent;
-    */
+    const prevEditorComponent = this.#editorComponent;
+    const wasEditMode = this.#isEditMode;
+
     this.#pointComponent = new EventItemView(
       {
         point: this.#point,
@@ -78,13 +79,19 @@ export default class PointPresenter {
       }
     });
 
-    replace(this.#pointComponent, prevPointComponent);
-
     this.#pointComponent.setRollupClickHandler(this.#handleEditOpen);
     this.#pointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
     this.#editorComponent.setRollupClickHandler(this.#handleEditClose);
     this.#editorComponent.setSubmitClickHandler(this.#handleSubmit);
     this.#editorComponent.setDeleteClickHandler(this.#handleDelete);
+
+    if (wasEditMode) {
+      replace(this.#editorComponent, prevEditorComponent);
+      this.#replaceFormToPoint();
+      return;
+    }
+
+    replace(this.#pointComponent, prevPointComponent);
   }
 
   resetMode() {
@@ -116,7 +123,9 @@ export default class PointPresenter {
 
   #handleSubmit = (evt) => {
     evt.preventDefault();
-    this.#replaceFormToPoint();
+    const updatedData = this.#editorComponent.updatedData;
+    this.#editorComponent.updateElement(updatedData);
+    this.#onDataUpdate(updatedData);
   };
 
   #handleDelete = () => {

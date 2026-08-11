@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import DateServices from '../api/services/date-services.js';
 
 
@@ -38,8 +38,8 @@ const createPointEditorTemplate = (data) => {
               <fieldset class="event__type-group">
                 <legend class="visually-hidden">Event type</legend>
                 ${ eventTypes.map((t, index) => `<div class="event__type-item">
-                  <input id="event-type-${this}-${index}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
-                  <label class="event__type-label  event__type-label--${this}" for="event-type-${this}-${index}">${this}</label>
+                  <input id="event-type-${t}-${index}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${t}">
+                  <label class="event__type-label  event__type-label--${t}" for="event-type-${t}-${index}">${t}</label>
                 </div>`).join('') }
               </fieldset>
             </div>
@@ -107,16 +107,52 @@ const createPointEditorTemplate = (data) => {
   `;
 };
 
-export default class PointEditorView extends AbstractView {
+export default class PointEditorView extends AbstractStatefulView {
   #data = null;
+  updatedData = {};
 
   constructor(data) {
     super();
     this.#data = data;
+
+    this.#handlerTypeChange();
+    this.#handlerDestinationChange();
+    this.#handlesOffersChange();
   }
 
   get template() {
     return createPointEditorTemplate(this.#data);
+  }
+
+  _restoreHandlers() {
+
+  }
+
+  #handlerTypeChange() {
+    this.element.querySelectorAll('.event__type-input').forEach((input) => input.addEventListener('change', (evt) => {
+      this.updatedData = {...this.#data.point, type: evt.target.value};
+      this.element.querySelector('.event__type-icon').src = `img/icons/${evt.target.value}.png`;
+      this.element.querySelector('.event__type-output').textContent = evt.target.value;
+    }));
+  }
+
+  #handlerDestinationChange() {
+    this.element.querySelector('.event__input--destination').addEventListener('change', (evt) => {
+      const {id} = this.#data.referenceData.destinations.find((destination) => destination.name === evt.target.value);
+      this.updatedData = {...this.#data.point, destinationId: id};
+    });
+  }
+
+  #handlesOffersChange() {
+    const updatedOffersIds = [...this.#data.point.offersIds];
+    this.element.querySelectorAll('.event__offer-checkbox').forEach((checkbox) => checkbox.addEventListener('change', (evt) => {
+      if (evt.target.checked) {
+        updatedOffersIds.push(evt.target.id);
+      } else {
+        updatedOffersIds.splice(updatedOffersIds.indexOf(evt.target.id), 1);
+      }
+      this.updatedData = {...this.#data.point, offersIds: updatedOffersIds};
+    }));
   }
 
   setRollupClickHandler(callback) {
