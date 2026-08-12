@@ -1,6 +1,11 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import DateServices from '../api/services/date-services.js';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
 
+const DateFormat = {
+  FLATPICKR: 'd/m/y H:i'
+};
 
 const createPointEditorTemplate = (data) => {
   const {
@@ -11,6 +16,7 @@ const createPointEditorTemplate = (data) => {
     point
   } = data;
   const {
+    id,
     type,
     dateFrom,
     dateTo,
@@ -18,7 +24,7 @@ const createPointEditorTemplate = (data) => {
     basePrice,
     offersIds
   } = point;
-  const {getDateTime} = new DateServices();
+  const {getFormDate} = new DateServices();
   const currentType = type ?? 'flight';
   const eventTypes = offersData.map((offer) => offer.type);
   const offersList = offersData.find((offer) => offer.type === currentType).offers;
@@ -54,11 +60,11 @@ const createPointEditorTemplate = (data) => {
             </datalist>
           </div>
           <div class="event__field-group  event__field-group--time">
-            <label class="visually-hidden" for="event-start-time-1">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${getDateTime(dateFrom)}">
+            <label class="visually-hidden" for="event-start-time-${id}">From</label>
+            <input class="flatpickr event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="${dateFrom ? getFormDate(dateFrom) : ''}">
             &mdash;
-            <label class="visually-hidden" for="event-end-time-1">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${getDateTime(dateTo)}">
+            <label class="visually-hidden" for="event-end-time-${id}">To</label>
+            <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time" value="${dateTo ? getFormDate(dateTo) : ''}">
           </div>
           <div class="event__field-group  event__field-group--price">
             <label class="event__label" for="event-price-1">
@@ -108,20 +114,21 @@ const createPointEditorTemplate = (data) => {
 };
 
 export default class PointEditorView extends AbstractStatefulView {
-  #data = null;
   updatedData = {};
+  #dateFromPicker = null;
+  #dateToPicker = null;
 
   constructor(data) {
     super();
-    this.#data = data;
-
+    this._state = data;
     this.#handlerTypeChange();
     this.#handlerDestinationChange();
     this.#handlesOffersChange();
+    this.#setDatepickers();
   }
 
   get template() {
-    return createPointEditorTemplate(this.#data);
+    return createPointEditorTemplate(this._state);
   }
 
   _restoreHandlers() {
@@ -130,7 +137,7 @@ export default class PointEditorView extends AbstractStatefulView {
 
   #handlerTypeChange() {
     this.element.querySelectorAll('.event__type-input').forEach((input) => input.addEventListener('change', (evt) => {
-      this.updatedData = {...this.#data.point, type: evt.target.value};
+      this.updatedData = {...this._state.point, type: evt.target.value};
       this.element.querySelector('.event__type-icon').src = `img/icons/${evt.target.value}.png`;
       this.element.querySelector('.event__type-output').textContent = evt.target.value;
     }));
@@ -138,21 +145,51 @@ export default class PointEditorView extends AbstractStatefulView {
 
   #handlerDestinationChange() {
     this.element.querySelector('.event__input--destination').addEventListener('change', (evt) => {
-      const {id} = this.#data.referenceData.destinations.find((destination) => destination.name === evt.target.value);
-      this.updatedData = {...this.#data.point, destinationId: id};
+      const {id} = this._state.referenceData.destinations.find((destination) => destination.name === evt.target.value);
+      this.updatedData = {...this._state.point, destinationId: id};
     });
   }
 
   #handlesOffersChange() {
-    const updatedOffersIds = [...this.#data.point.offersIds];
+    const updatedOffersIds = [...this._state.point.offersIds];
     this.element.querySelectorAll('.event__offer-checkbox').forEach((checkbox) => checkbox.addEventListener('change', (evt) => {
       if (evt.target.checked) {
         updatedOffersIds.push(evt.target.id);
       } else {
         updatedOffersIds.splice(updatedOffersIds.indexOf(evt.target.id), 1);
       }
-      this.updatedData = {...this.#data.point, offersIds: updatedOffersIds};
+      this.updatedData = {...this._state.point, offersIds: updatedOffersIds};
     }));
+  }
+
+  #setDatepickers() {
+    const {point} = this._state;
+    const startInput = this.element.querySelector(`#event-start-time-${point.id}`);
+    const endInput = this.element.querySelector(`#event-end-time-${point.id}`);
+
+    this.#dateFromPicker = flatpickr(startInput, {
+      enableTime: true,
+      dateFormat: DateFormat.FLATPICKR,
+      defaultDate: point.dateFrom,
+      onChange: ([userDate]) => {
+        this.updatedData = {
+          ...this._state.point,
+          dateFrom: userDate.toISOString(),
+        };
+      },
+    });
+
+    this.#dateToPicker = flatpickr(endInput, {
+      enableTime: true,
+      dateFormat: DateFormat.FLATPICKR,
+      defaultDate: point.dateTo,
+      onChange: ([userDate]) => {
+        this.updatedData = {
+          ...this._state.point,
+          dateTo: userDate
+        };
+      },
+    });
   }
 
   setRollupClickHandler(callback) {

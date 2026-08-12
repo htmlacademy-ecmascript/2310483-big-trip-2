@@ -4,7 +4,7 @@ import DateServices from '../../api/services/date-services.js';
 const createEventItemTemplate = ({point, destinations, offers}) => {
   const {type, destinationId, dateFrom, dateTo, basePrice, offersIds, isFavorite} = point;
 
-  const {getISODate, getISODateTime, getMonthDay, getHoursMinutes, getDuration} = new DateServices();
+  const {getDate, getTime, getDuration} = new DateServices();
   const selectedOffers = offers.filter((offer) => offersIds.includes(offer.id));
   const destination = destinations.find((item) => item.id === destinationId).name;
 
@@ -21,16 +21,16 @@ const createEventItemTemplate = ({point, destinations, offers}) => {
 
   return (`<li class="trip-events__item">
     <div class="event">
-      <time class="event__date" datetime="${getISODate(dateFrom)}" }">${getMonthDay(dateFrom)}</time>
+      <time class="event__date" datetime="${dateFrom}" }">${getDate(dateFrom)}</time>
       <div class="event__type">
         <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
       </div>
       <h3 class="event__title">${type} ${destination}</h3>
       <div class="event__schedule">
         <p class="event__time">
-          <time class="event__start-time" datetime="${getISODateTime(dateFrom)}">${getHoursMinutes(dateFrom)}</time>
+          <time class="event__start-time" datetime="${dateFrom}">${getTime(dateFrom)}</time>
           &mdash;
-          <time class="event__end-time" datetime="${getISODateTime(dateTo)}">${getHoursMinutes(dateTo)}</time>
+          <time class="event__end-time" datetime="${dateTo}">${getTime(dateTo)}</time>
         </p>
         <p class="event__duration">${getDuration(dateFrom, dateTo)}</p>
       </div>
