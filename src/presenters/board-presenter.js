@@ -3,9 +3,14 @@ import EmptyListView from '../view/event-list-view/empty-list-view.js';
 import SortView from '../view/sort-view.js';
 import PointEditorView from '../view/editor-view.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
-import { SortOptions, DEFAULT_SORT_OPTION, DEFAULT_FILTER, EMPTY_POINT } from '../api/constants.js';
+import {
+  SortOptions,
+  DEFAULT_SORT_OPTION,
+  DEFAULT_FILTER,
+  EMPTY_POINT,
+} from '../api/constants.js';
 import PointPresenter from './point-presenter.js';
-import {FiltersCb, SortCb} from '../utils/functions.js';
+import { FiltersCb, SortCb } from '../utils/functions.js';
 
 export default class BoardPresenter {
   #pointsModel = null;
@@ -22,7 +27,7 @@ export default class BoardPresenter {
   #pointsPresenters = new Map();
   #currentSortOption = DEFAULT_SORT_OPTION;
 
-  constructor({mainContainer, pointsModel, filtersModel}) {
+  constructor({ mainContainer, pointsModel, filtersModel }) {
     this.#mainContainer = mainContainer;
     this.#pointsModel = pointsModel;
     this.#filtersModel = filtersModel;
@@ -32,13 +37,17 @@ export default class BoardPresenter {
     const points = [...this.#pointsModel.points];
     const currentFilter = this.#filtersModel.currentFilter;
 
-    return currentFilter !== DEFAULT_FILTER ? points.filter(FiltersCb[currentFilter]) : points;
+    return currentFilter !== DEFAULT_FILTER
+      ? points.filter(FiltersCb[currentFilter])
+      : points;
   }
 
-  get #sortedPoints () {
+  get #sortedPoints() {
     const filteredPoints = this.#filteredPoints;
 
-    return this.#currentSortOption !== DEFAULT_SORT_OPTION ? filteredPoints.sort(SortCb[this.#currentSortOption]) : filteredPoints;
+    return this.#currentSortOption !== DEFAULT_SORT_OPTION
+      ? filteredPoints.sort(SortCb[this.#currentSortOption])
+      : filteredPoints;
   }
 
   get destinations() {
@@ -64,12 +73,14 @@ export default class BoardPresenter {
 
   #renderPointsBoard() {
     if (this.#sortedPoints.length === 0) {
-      this.#emptyListComponent = new EmptyListView(this.#filtersModel.currentFilter);
+      this.#emptyListComponent = new EmptyListView(
+        this.#filtersModel.currentFilter,
+      );
       render(this.#emptyListComponent, this.#mainContainer);
       return;
     }
     render(this.#eventListComponent, this.#mainContainer);
-    if(this.#sortedPoints.length === 0) {
+    if (this.#sortedPoints.length === 0) {
       this.#renderEmptyList();
       return;
     }
@@ -78,13 +89,11 @@ export default class BoardPresenter {
   }
 
   #renderSort() {
-    this.#sortComponent = new SortView(
-      {
-        sortOptions: SortOptions,
-        onSortTypeChange: this.#handleSortPoints,
-        currentSortType: this.#currentSortOption
-      }
-    );
+    this.#sortComponent = new SortView({
+      sortOptions: SortOptions,
+      onSortTypeChange: this.#handleSortPoints,
+      currentSortType: this.#currentSortOption,
+    });
 
     render(this.#sortComponent, this.#eventListComponent.element);
   }
@@ -94,17 +103,15 @@ export default class BoardPresenter {
   }
 
   #renderPoint(point) {
-    const pointPresenter = new PointPresenter(
-      {
-        container: this.#eventListComponent.element,
-        point,
-        destinations: this.destinations,
-        offersData: this.offersData,
-        onDataUpdate: this.#handlePointChange,
-        onModeChange: this.#handleEditorMode,
-        onPointDelete: this.#handlePointDelete
-      }
-    );
+    const pointPresenter = new PointPresenter({
+      container: this.#eventListComponent.element,
+      point,
+      destinations: this.destinations,
+      offersData: this.offersData,
+      onDataUpdate: this.#handlePointChange,
+      onModeChange: this.#handleEditorMode,
+      onPointDelete: this.#handlePointDelete,
+    });
     pointPresenter.init();
     this.#pointsPresenters.set(point.id, pointPresenter);
   }
@@ -118,7 +125,9 @@ export default class BoardPresenter {
   #clearPoints() {
     remove(this.#sortComponent);
     this.#sortComponent = null;
-    this.#pointsPresenters.forEach((pointPresenter) => pointPresenter.destroy());
+    this.#pointsPresenters.forEach((pointPresenter) =>
+      pointPresenter.destroy(),
+    );
     this.#pointsPresenters.clear();
     remove(this.#emptyListComponent);
     this.#emptyListComponent = null;
@@ -163,27 +172,36 @@ export default class BoardPresenter {
       point: EMPTY_POINT,
       referenceData: {
         destinations: this.destinations,
-        offersData: this.offersData
-      }
+        offersData: this.offersData,
+      },
     });
-    render(this.#newPointEditComponent, this.#sortComponent.element, RenderPosition.AFTEREND);
+    render(
+      this.#newPointEditComponent,
+      this.#sortComponent.element,
+      RenderPosition.AFTEREND,
+    );
     this.#newPointEditComponent.setResetClickHandler(this.#handleCreatorClose);
-    this.#newPointEditComponent.setSubmitClickHandler(this.#handleCreatorSubmit);
+    this.#newPointEditComponent.setSubmitClickHandler(
+      this.#handleCreatorSubmit,
+    );
+    document.addEventListener('keydown', this.#escKeyDownHandler);
   };
 
   #handleCreatorClose = () => {
     this.#isCreatorMode = false;
     remove(this.#newPointEditComponent);
     this.#newPointEditComponent = null;
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
   #handleCreatorSubmit = (evt) => {
     evt.preventDefault();
     const point = this.#newPointEditComponent.updatedData;
-    console.log(point);
+
     if (point.destinationId === null) {
       return;
     }
+
     this.#pointsModel.addPoint(point);
     this.#handleCreatorClose();
     this.rerender();
@@ -196,6 +214,13 @@ export default class BoardPresenter {
 
     if (pointPresenter) {
       pointPresenter.update(updatedPoint);
+    }
+  };
+
+  #escKeyDownHandler = (evt) => {
+    if (evt.key === 'Escape') {
+      evt.preventDefault();
+      this.#handleCreatorClose();
     }
   };
 }

@@ -117,32 +117,55 @@ export default class PointEditorView extends AbstractStatefulView {
   updatedData = {};
   #dateFromPicker = null;
   #dateToPicker = null;
-  #pointResetHandler = null;
+
+  #onReset = null;
+  #onRollupClick = null;
+  #onSubmit = null;
+
 
   constructor(data) {
     super();
-    this._state = data;
-    this.updatedData = data.point;
+    this._state = {...data};
+    this.updatedData = {...data.point};
+    this.#setDatepickers();
     this.#handlerTypeChange();
     this.#handlerDestinationChange();
     this.#handleOffersChange();
-    this.#setDatepickers();
   }
 
   get template() {
     return createPointEditorTemplate(this._state);
   }
 
-  _restoreHandlers() {
+  removeElement() {
+    this.#dateFromPicker?.destroy();
+    this.#dateToPicker?.destroy();
+    this.#dateFromPicker = null;
+    this.#dateToPicker = null;
+    super.removeElement();
+  }
 
+  _restoreHandlers() {
+    this.#setDatepickers();
+    this.#handlerTypeChange();
+    this.#handlerDestinationChange();
+    this.#handleOffersChange();
+
+    this.setResetClickHandler(this.#onReset);
+    if (this._state.point.id) {
+      this.setRollupClickHandler(this.#onRollupClick);
+    }
+    this.setSubmitClickHandler(this.#onSubmit);
   }
 
   #handlerTypeChange() {
-    this.element.querySelectorAll('.event__type-input').forEach((input) => input.addEventListener('change', (evt) => {
-      this.updatedData = {...this._state.point, type: evt.target.value};
-      this.element.querySelector('.event__type-icon').src = `img/icons/${evt.target.value}.png`;
-      this.element.querySelector('.event__type-output').textContent = evt.target.value;
-    }));
+    this.element.querySelector('.event__type-group').addEventListener('change', (evt) => {
+      if (!evt.target.matches('.event__type-input')) {
+        return;
+      }
+      this.updatedData = {...this._state.point, type: evt.target.value, offersIds: []};
+      this.updateElement({...this._state, point: {...this.updatedData}});
+    });
   }
 
   #handlerDestinationChange() {
@@ -152,6 +175,7 @@ export default class PointEditorView extends AbstractStatefulView {
         return;
       }
       this.updatedData.destinationId = destination.id;
+      this.updateElement({...this._state, point: {...this.updatedData}});
     });
   }
 
@@ -166,10 +190,6 @@ export default class PointEditorView extends AbstractStatefulView {
       this.updatedData.offersIds = updatedOffersIds;
     }));
   }
-
-  #setPointResetHandler = (callback) => {
-    this.#pointResetHandler = () => callback(this._state.point.id);
-  };
 
   #setDatepickers() {
     const {point} = this._state;
@@ -196,15 +216,21 @@ export default class PointEditorView extends AbstractStatefulView {
   }
 
   setRollupClickHandler(callback) {
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', callback);
+    this.#onRollupClick = () => callback();
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#onRollupClick);
   }
 
   setSubmitClickHandler(callback) {
-    this.element.querySelector('.event__save-btn').addEventListener('click', callback);
+    this.#onSubmit = (evt) => callback(evt);
+    this.element.querySelector('.event__save-btn').addEventListener('click', this.#onSubmit);
   }
 
   setResetClickHandler(callback) {
-    this.#setPointResetHandler(callback);
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#pointResetHandler);
+    if (this._state.point.id) {
+      this.#onReset = () => callback(this._state.point.id);
+    } else {
+      this.#onReset = () => callback();
+    }
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onReset);
   }
 }

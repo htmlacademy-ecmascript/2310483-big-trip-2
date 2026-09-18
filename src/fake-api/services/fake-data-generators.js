@@ -23,7 +23,7 @@ const citiesListGenerator = () => {
 
 const offersListGenerator = (eventTypes) => eventTypes.map((type) => ({
   type: type,
-  offers: OffersOptions,
+  offers: OffersOptions.slice(0, getRandomNumber(1, OffersOptions.length)),
 }));
 
 const eventPointDataGenerator = (id) => {
