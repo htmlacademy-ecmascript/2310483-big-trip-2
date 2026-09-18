@@ -54,7 +54,7 @@ const createPointEditorTemplate = (data) => {
             <label class="event__label  event__type-output" for="event-destination-1">
               ${currentType}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${currentDestination.name}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${currentDestination?.name ?? ''}" list="destination-list-1">
             <datalist id="destination-list-1">
               ${ destinations.map(({name}) => `<option value="${name}"></option>`).join('') }
             </datalist>
@@ -73,7 +73,7 @@ const createPointEditorTemplate = (data) => {
             </label>
             <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice ?? ''}">
           </div>
-          ${point ? `
+          ${point.id ? `
               <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
               <button class="event__reset-btn" type="reset">Delete</button>
               <button class="event__rollup-btn" type="button">
@@ -117,7 +117,7 @@ export default class PointEditorView extends AbstractStatefulView {
   updatedData = {};
   #dateFromPicker = null;
   #dateToPicker = null;
-  #pointDeleteCb = null;
+  #pointResetHandler = null;
 
   constructor(data) {
     super();
@@ -163,8 +163,8 @@ export default class PointEditorView extends AbstractStatefulView {
     }));
   }
 
-  #setPointDeleteCb = (callback) => {
-    this.#pointDeleteCb = () => callback(this._state.point.id);
+  #setPointResetHandler = (callback) => {
+    this.#pointResetHandler = () => callback(this._state.point.id);
   };
 
   #setDatepickers() {
@@ -205,8 +205,8 @@ export default class PointEditorView extends AbstractStatefulView {
     this.element.querySelector('.event__save-btn').addEventListener('click', callback);
   }
 
-  setDeleteClickHandler(callback) {
-    this.#setPointDeleteCb(callback);
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#pointDeleteCb);
+  setResetClickHandler(callback) {
+    this.#setPointResetHandler(callback);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#pointResetHandler);
   }
 }

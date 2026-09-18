@@ -1,8 +1,9 @@
 import EventListView from '../view/event-list-view/event-list-view.js';
 import EmptyListView from '../view/event-list-view/empty-list-view.js';
 import SortView from '../view/sort-view.js';
-import { render, remove } from '../framework/render.js';
-import { SortOptions, DEFAULT_SORT_OPTION, DEFAULT_FILTER } from '../api/constants.js';
+import PointEditorView from '../view/editor-view.js';
+import { render, remove, RenderPosition } from '../framework/render.js';
+import { SortOptions, DEFAULT_SORT_OPTION, DEFAULT_FILTER, EMPTY_POINT } from '../api/constants.js';
 import PointPresenter from './point-presenter.js';
 import {FiltersCb, SortCb} from '../utils/functions.js';
 
@@ -15,6 +16,8 @@ export default class BoardPresenter {
   #emptyListComponent = null;
   #newPointEditComponent = null;
   #sortComponent = null;
+
+  #isCreatorMode = false;
 
   #pointsPresenters = new Map();
   #currentSortOption = DEFAULT_SORT_OPTION;
@@ -141,9 +144,36 @@ export default class BoardPresenter {
   };
 
   #handleEditorMode = () => {
+    if (this.#isCreatorMode) {
+      this.#handleCreatorClose();
+    }
     this.#pointsPresenters.forEach((pointPresenter) => {
       pointPresenter.resetMode();
     });
+  };
+
+  handleCreatorOpen = () => {
+    if (this.#isCreatorMode) {
+      return;
+    }
+
+    this.#handleEditorMode();
+    this.#isCreatorMode = true;
+    this.#newPointEditComponent = new PointEditorView({
+      point: EMPTY_POINT,
+      referenceData: {
+        destinations: this.destinations,
+        offersData: this.offersData
+      }
+    });
+    render(this.#newPointEditComponent, this.#sortComponent.element, RenderPosition.AFTEREND);
+    this.#newPointEditComponent.setResetClickHandler(this.#handleCreatorClose);
+  };
+
+  #handleCreatorClose = () => {
+    this.#isCreatorMode = false;
+    remove(this.#newPointEditComponent);
+    this.#newPointEditComponent = null;
   };
 
   #handlePointChange = (updatedPoint) => {

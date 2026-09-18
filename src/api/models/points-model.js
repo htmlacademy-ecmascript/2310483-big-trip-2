@@ -27,6 +27,10 @@ export default class PointsModel extends Observable {
     this.#points[pointIndex] = updatedPoint;
   }
 
+  addPoint(point) {
+    this.#points = [...this.#points, point];
+  }
+
   deletePoint(pointId) {
     const pointIndex = this.#points.findIndex((point) => point.id === pointId);
     if (pointIndex === -1) {

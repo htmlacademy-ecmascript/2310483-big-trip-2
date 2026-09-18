@@ -47,7 +47,7 @@ export default class PointPresenter {
     this.#pointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
     this.#editorComponent.setRollupClickHandler(this.#handleEditClose);
     this.#editorComponent.setSubmitClickHandler(this.#handleSubmit);
-    this.#editorComponent.setDeleteClickHandler(this.#handleDelete);
+    this.#editorComponent.setResetClickHandler(this.#handleDelete);
   }
 
   destroy() {
@@ -85,7 +85,7 @@ export default class PointPresenter {
     this.#pointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
     this.#editorComponent.setRollupClickHandler(this.#handleEditClose);
     this.#editorComponent.setSubmitClickHandler(this.#handleSubmit);
-    this.#editorComponent.setDeleteClickHandler(this.#handleDelete);
+    this.#editorComponent.setResetClickHandler(this.#handleDelete);
 
     if (wasEditMode) {
       replace(this.#editorComponent, prevEditorComponent);

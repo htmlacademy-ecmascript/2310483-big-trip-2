@@ -75,10 +75,21 @@ const EVENT_TYPES = [
   'restaurant'
 ];
 
+const EMPTY_POINT = {
+  id: null,
+  basePrice: '0',
+  dateFrom: new Date(),
+  dateTo: new Date(),
+  destinationId: '',
+  isFavorite: false,
+  offersIds: [],
+  type: EVENT_TYPES[0],
+};
+
 export {
   FiltersOptions,
   DEFAULT_FILTER,
   SortOptions,
   DEFAULT_SORT_OPTION,
-  EVENT_TYPES
+  EVENT_TYPES, EMPTY_POINT
 };
