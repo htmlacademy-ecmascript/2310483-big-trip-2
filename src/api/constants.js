@@ -80,7 +80,7 @@ const EMPTY_POINT = {
   basePrice: '0',
   dateFrom: new Date(),
   dateTo: new Date(),
-  destinationId: '',
+  destinationId: null,
   isFavorite: false,
   offersIds: [],
   type: EVENT_TYPES[0],

@@ -1,11 +1,12 @@
 import { eventPointDataGenerator, citiesListGenerator, offersListGenerator } from '../../fake-api/services/fake-data-generators.js';
 import { EVENT_TYPES } from '../constants.js';
 import Observable from '../../framework/observable.js';
+import { SortCb } from '../../utils/functions.js';
 
 const POINTS_COUNT = 10;
 
 export default class PointsModel extends Observable {
-  #points = Array.from({length: POINTS_COUNT}, () => eventPointDataGenerator());
+  #points = Array.from({length: POINTS_COUNT}, (_, index) => eventPointDataGenerator(index));
   #destinations = citiesListGenerator();
   #offersData = offersListGenerator(EVENT_TYPES);
 
@@ -28,7 +29,7 @@ export default class PointsModel extends Observable {
   }
 
   addPoint(point) {
-    this.#points = [...this.#points, point];
+    this.#points = [...this.#points, {...point, id: `${this.#points.length}`}].sort(SortCb['sort-day']);
   }
 
   deletePoint(pointId) {

@@ -61,7 +61,7 @@ const createPointEditorTemplate = (data) => {
           </div>
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-${id}">From</label>
-            <input class="flatpickr event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="${dateFrom ? getFormDate(dateFrom) : ''}">
+            <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="${dateFrom ? getFormDate(dateFrom) : ''}">
             &mdash;
             <label class="visually-hidden" for="event-end-time-${id}">To</label>
             <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time" value="${dateTo ? getFormDate(dateTo) : ''}">
@@ -122,9 +122,10 @@ export default class PointEditorView extends AbstractStatefulView {
   constructor(data) {
     super();
     this._state = data;
+    this.updatedData = data.point;
     this.#handlerTypeChange();
     this.#handlerDestinationChange();
-    this.#handlesOffersChange();
+    this.#handleOffersChange();
     this.#setDatepickers();
   }
 
@@ -146,20 +147,23 @@ export default class PointEditorView extends AbstractStatefulView {
 
   #handlerDestinationChange() {
     this.element.querySelector('.event__input--destination').addEventListener('change', (evt) => {
-      const {id} = this._state.referenceData.destinations.find((destination) => destination.name === evt.target.value);
-      this.updatedData = {...this._state.point, destinationId: id};
+      const destination = this._state.referenceData.destinations.find(({name}) => name === evt.target.value);
+      if (!destination) {
+        return;
+      }
+      this.updatedData.destinationId = destination.id;
     });
   }
 
-  #handlesOffersChange() {
-    const updatedOffersIds = [...this._state.point.offersIds];
+  #handleOffersChange() {
+    const updatedOffersIds = [...this.updatedData.offersIds];
     this.element.querySelectorAll('.event__offer-checkbox').forEach((checkbox) => checkbox.addEventListener('change', (evt) => {
       if (evt.target.checked) {
         updatedOffersIds.push(evt.target.id);
       } else {
         updatedOffersIds.splice(updatedOffersIds.indexOf(evt.target.id), 1);
       }
-      this.updatedData = {...this._state.point, offersIds: updatedOffersIds};
+      this.updatedData.offersIds = updatedOffersIds;
     }));
   }
 
@@ -177,10 +181,7 @@ export default class PointEditorView extends AbstractStatefulView {
       dateFormat: DateFormat.FLATPICKR,
       defaultDate: point.dateFrom,
       onChange: ([userDate]) => {
-        this.updatedData = {
-          ...this._state.point,
-          dateFrom: userDate.toISOString(),
-        };
+        this.updatedData.dateFrom = userDate;
       },
     });
 
@@ -189,10 +190,7 @@ export default class PointEditorView extends AbstractStatefulView {
       dateFormat: DateFormat.FLATPICKR,
       defaultDate: point.dateTo,
       onChange: ([userDate]) => {
-        this.updatedData = {
-          ...this._state.point,
-          dateTo: userDate
-        };
+        this.updatedData.dateTo = userDate;
       },
     });
   }

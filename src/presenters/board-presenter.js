@@ -168,12 +168,25 @@ export default class BoardPresenter {
     });
     render(this.#newPointEditComponent, this.#sortComponent.element, RenderPosition.AFTEREND);
     this.#newPointEditComponent.setResetClickHandler(this.#handleCreatorClose);
+    this.#newPointEditComponent.setSubmitClickHandler(this.#handleCreatorSubmit);
   };
 
   #handleCreatorClose = () => {
     this.#isCreatorMode = false;
     remove(this.#newPointEditComponent);
     this.#newPointEditComponent = null;
+  };
+
+  #handleCreatorSubmit = (evt) => {
+    evt.preventDefault();
+    const point = this.#newPointEditComponent.updatedData;
+    console.log(point);
+    if (point.destinationId === null) {
+      return;
+    }
+    this.#pointsModel.addPoint(point);
+    this.#handleCreatorClose();
+    this.rerender();
   };
 
   #handlePointChange = (updatedPoint) => {
