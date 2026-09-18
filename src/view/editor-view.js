@@ -117,6 +117,7 @@ export default class PointEditorView extends AbstractStatefulView {
   updatedData = {};
   #dateFromPicker = null;
   #dateToPicker = null;
+  #pointDeleteCb = null;
 
   constructor(data) {
     super();
@@ -162,6 +163,10 @@ export default class PointEditorView extends AbstractStatefulView {
     }));
   }
 
+  #setPointDeleteCb = (callback) => {
+    this.#pointDeleteCb = () => callback(this._state.point.id);
+  };
+
   #setDatepickers() {
     const {point} = this._state;
     const startInput = this.element.querySelector(`#event-start-time-${point.id}`);
@@ -201,6 +206,7 @@ export default class PointEditorView extends AbstractStatefulView {
   }
 
   setDeleteClickHandler(callback) {
-    this.element.querySelector('.event__reset-btn').addEventListener('click', callback);
+    this.#setPointDeleteCb(callback);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#pointDeleteCb);
   }
 }

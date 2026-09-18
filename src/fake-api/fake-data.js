@@ -44,12 +44,6 @@ const OffersOptions = [
     price: '200'
   },
   {
-    id: 'event-offer-luggage-3',
-    title: 'Switch to comfort class',
-    value: 'event-offer-luggage-3',
-    price: '30'
-  },
-  {
     id: 'event-offer-add-breakfast',
     title: 'Add breakfast',
     value: 'event-offer-add-breakfast',

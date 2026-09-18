@@ -5,7 +5,6 @@ import { render, remove } from '../framework/render.js';
 import { SortOptions, DEFAULT_SORT_OPTION, DEFAULT_FILTER } from '../api/constants.js';
 import PointPresenter from './point-presenter.js';
 import {FiltersCb, SortCb} from '../utils/functions.js';
-import dayjs from 'dayjs';
 
 export default class BoardPresenter {
   #pointsModel = null;
@@ -45,6 +44,10 @@ export default class BoardPresenter {
 
   get offersData() {
     return this.#pointsModel.offersData;
+  }
+
+  get points() {
+    return this.#pointsModel.points;
   }
 
   init() {
@@ -95,7 +98,8 @@ export default class BoardPresenter {
         destinations: this.destinations,
         offersData: this.offersData,
         onDataUpdate: this.#handlePointChange,
-        onModeChange: this.#handleEditorMode
+        onModeChange: this.#handleEditorMode,
+        onPointDelete: this.#handlePointDelete
       }
     );
     pointPresenter.init();
@@ -111,7 +115,6 @@ export default class BoardPresenter {
   #clearPoints() {
     remove(this.#sortComponent);
     this.#sortComponent = null;
-
     this.#pointsPresenters.forEach((pointPresenter) => pointPresenter.destroy());
     this.#pointsPresenters.clear();
     remove(this.#emptyListComponent);
@@ -129,6 +132,11 @@ export default class BoardPresenter {
     }
 
     this.#currentSortOption = sortType;
+    this.rerender();
+  };
+
+  #handlePointDelete = (id) => {
+    this.#pointsModel.deletePoint(id);
     this.rerender();
   };
 
