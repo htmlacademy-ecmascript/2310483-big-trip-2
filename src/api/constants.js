@@ -79,7 +79,7 @@ const EMPTY_POINT = {
   id: null,
   basePrice: '0',
   dateFrom: new Date(),
-  dateTo: new Date(),
+  dateTo: null,
   destinationId: null,
   isFavorite: false,
   offersIds: [],

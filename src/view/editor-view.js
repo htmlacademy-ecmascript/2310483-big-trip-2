@@ -206,8 +206,7 @@ export default class PointEditorView extends AbstractStatefulView {
         input.reportValidity();
         return;
       }
-      this.updatedData.price = Number(evt.target.value);
-      this.updateElement({...this._state, point: {...this.updatedData}});
+      this.updatedData.basePrice = Number(evt.target.value);
     });
   }
 
