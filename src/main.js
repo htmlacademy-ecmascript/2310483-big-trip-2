@@ -1,16 +1,34 @@
-import MainPresenter from './presenters/main-presenter.js';
-import TripModel from './fake-api/models/trip-model.js';
+import BoardPresenter from './presenters/board-presenter.js';
+import FiltersPresenter from './presenters/filters-presenter.js';
+import PointsModel from './api/models/points-model.js';
+import FiltersModel from './api/models/filters-model.js';
+import NewPointButtonView from './view/new-point-button-view.js';
+import { render, RenderPosition } from './framework/render.js';
 
 const containers = {
   filters: document.querySelector('.trip-controls__filters'),
   main: document.querySelector('.trip-events'),
+  tripMain: document.querySelector('.trip-main'),
 };
-const {points, destinations, offersData} = new TripModel().getTripData();
-const presenter = new MainPresenter(
-  {
-    containers,
-    points,
-    destinations,
-    offersData
-  });
-presenter.init();
+const pointsModel = new PointsModel();
+const filtersModel = new FiltersModel();
+
+const boardPresenter = new BoardPresenter({
+  mainContainer: containers.main,
+  pointsModel,
+  filtersModel,
+});
+
+const newPointButton = new NewPointButtonView();
+newPointButton.setOpenEditorHandler(() => boardPresenter.handleCreatorOpen());
+
+const filtersPresenter = new FiltersPresenter({
+  container: containers.filters,
+  pointsModel,
+  filtersModel,
+  onFilterChange: () => boardPresenter.handleFilterTypeChange(),
+});
+
+render(newPointButton, containers.tripMain, RenderPosition.BEFOREEND);
+filtersPresenter.init();
+boardPresenter.init();

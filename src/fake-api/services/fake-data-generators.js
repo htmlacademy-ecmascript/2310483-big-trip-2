@@ -23,13 +23,13 @@ const citiesListGenerator = () => {
 
 const offersListGenerator = (eventTypes) => eventTypes.map((type) => ({
   type: type,
-  offers: OffersOptions,
+  offers: OffersOptions.slice(0, getRandomNumber(1, OffersOptions.length)),
 }));
 
-const eventPointDataGenerator = () => {
+const eventPointDataGenerator = (id) => {
   const offersIds = new Set(Array.from({length: getRandomNumber(1, 5)}, () => OffersOptions[getRandomNumber(0, OffersOptions.length - 1)].id));
   return ({
-    id: `${getRandomNumber(1, 1000)}`,
+    id: `${id}`,
     basePrice: getRandomNumber(20, 1000),
     dateFrom: new Date(Date.now() + getRandomNumber(1000, 300000)),
     dateTo: new Date(Date.now() + getRandomNumber(300000, 60000000)),

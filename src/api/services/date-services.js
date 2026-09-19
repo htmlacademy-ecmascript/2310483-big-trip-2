@@ -22,8 +22,9 @@ export default class DateSevices {
 
   getDuration(start, end) {
     const totalMinutes = dayjs(end).diff(dayjs(start));
-    const {hours, minutes} = dayjs.duration(totalMinutes).$d;
+    const durationObj = dayjs.duration(totalMinutes);
+    const hours = Math.floor(durationObj.as('hour'));
 
-    return `${hours >= 1 ? `${String(hours).padStart(2, '0')}H` : ''} ${String(minutes).padStart(2, '0')}M`;
+    return `${hours >= 1 ? `${String(hours).padStart(2, '0')}H` : ''} ${String(durationObj.$d.minutes).padStart(2, '0')}M`;
   }
 }

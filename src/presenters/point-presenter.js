@@ -12,15 +12,17 @@ export default class PointPresenter {
   #editorComponent = null;
   #onDataUpdate = null;
   #onModeChange = null;
+  #onPointDelete = null;
   #isEditMode = false;
 
-  constructor({container, point, destinations, offersData, onDataUpdate, onModeChange}) {
+  constructor({container, point, destinations, offersData, onDataUpdate, onModeChange, onPointDelete}) {
     this.#container = container;
     this.#point = point;
     this.#destinations = destinations;
     this.#offersData = offersData;
     this.#onDataUpdate = onDataUpdate;
     this.#onModeChange = onModeChange;
+    this.#onPointDelete = onPointDelete;
   }
 
   init() {
@@ -45,7 +47,7 @@ export default class PointPresenter {
     this.#pointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
     this.#editorComponent.setRollupClickHandler(this.#handleEditClose);
     this.#editorComponent.setSubmitClickHandler(this.#handleSubmit);
-    this.#editorComponent.setDeleteClickHandler(this.#handleDelete);
+    this.#editorComponent.setResetClickHandler(this.#handleDelete);
   }
 
   destroy() {
@@ -83,7 +85,7 @@ export default class PointPresenter {
     this.#pointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
     this.#editorComponent.setRollupClickHandler(this.#handleEditClose);
     this.#editorComponent.setSubmitClickHandler(this.#handleSubmit);
-    this.#editorComponent.setDeleteClickHandler(this.#handleDelete);
+    this.#editorComponent.setResetClickHandler(this.#handleDelete);
 
     if (wasEditMode) {
       replace(this.#editorComponent, prevEditorComponent);
@@ -128,7 +130,8 @@ export default class PointPresenter {
     this.#onDataUpdate(updatedData);
   };
 
-  #handleDelete = () => {
+  #handleDelete = (id) => {
+    this.#onPointDelete(id);
     this.#replaceFormToPoint();
   };
 

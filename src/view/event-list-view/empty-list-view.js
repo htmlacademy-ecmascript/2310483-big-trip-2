@@ -3,13 +3,13 @@ import AbstractView from '../../framework/view/abstract-view.js';
 const createEmptyListViewTemplate = (filterState) => {
   const createMessage = () => {
     switch (filterState) {
-      case 'Everything':
+      case 'everything':
         return 'Click New Event to create your first point';
-      case 'Past':
+      case 'past':
         return 'There are no past events now';
-      case 'Present':
+      case 'present':
         return 'There are no present events now';
-      case 'Future':
+      case 'future':
         return 'There are no future events now';
       default:
         return 'Click New Event to create your first point';
