@@ -2,6 +2,7 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import DateServices from '../api/services/date-services.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+import { PRICE_INPUT_REGEXP } from '../api/constants.js';
 
 const DateFormat = {
   FLATPICKR: 'd/m/y H:i'
@@ -131,6 +132,7 @@ export default class PointEditorView extends AbstractStatefulView {
     this.#handlerTypeChange();
     this.#handlerDestinationChange();
     this.#handleOffersChange();
+    this.#handlePriceChange();
   }
 
   get template() {
@@ -150,6 +152,7 @@ export default class PointEditorView extends AbstractStatefulView {
     this.#handlerTypeChange();
     this.#handlerDestinationChange();
     this.#handleOffersChange();
+    this.#handlePriceChange();
 
     this.setResetClickHandler(this.#onReset);
     if (this._state.point.id) {
@@ -169,9 +172,12 @@ export default class PointEditorView extends AbstractStatefulView {
   }
 
   #handlerDestinationChange() {
-    this.element.querySelector('.event__input--destination').addEventListener('change', (evt) => {
+    const input = this.element.querySelector('.event__input--destination');
+    input.addEventListener('change', (evt) => {
       const destination = this._state.referenceData.destinations.find(({name}) => name === evt.target.value);
       if (!destination) {
+        input.setCustomValidity('Use destionation from the list!');
+        input.reportValidity();
         return;
       }
       this.updatedData.destinationId = destination.id;
@@ -191,6 +197,20 @@ export default class PointEditorView extends AbstractStatefulView {
     }));
   }
 
+  #handlePriceChange() {
+    const input = this.element.querySelector('.event__input--price');
+
+    input.addEventListener('change', (evt) => {
+      if (PRICE_INPUT_REGEXP.test(evt.target.value) === false) {
+        input.setCustomValidity('Use only numbers!');
+        input.reportValidity();
+        return;
+      }
+      this.updatedData.price = Number(evt.target.value);
+      this.updateElement({...this._state, point: {...this.updatedData}});
+    });
+  }
+
   #setDatepickers() {
     const {point} = this._state;
     const startInput = this.element.querySelector(`#event-start-time-${point.id}`);
@@ -199,7 +219,7 @@ export default class PointEditorView extends AbstractStatefulView {
     this.#dateFromPicker = flatpickr(startInput, {
       enableTime: true,
       dateFormat: DateFormat.FLATPICKR,
-      defaultDate: point.dateFrom,
+      defaultDate: this.updatedData.dateFrom,
       onChange: ([userDate]) => {
         this.updatedData.dateFrom = userDate;
       },
@@ -209,9 +229,13 @@ export default class PointEditorView extends AbstractStatefulView {
       enableTime: true,
       dateFormat: DateFormat.FLATPICKR,
       defaultDate: point.dateTo,
+      minDate: this.updatedData.dateFrom,
       onChange: ([userDate]) => {
+        if (!userDate) {
+          return;
+        }
         this.updatedData.dateTo = userDate;
-      },
+      }
     });
   }
 

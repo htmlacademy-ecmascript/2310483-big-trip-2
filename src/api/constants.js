@@ -86,10 +86,13 @@ const EMPTY_POINT = {
   type: EVENT_TYPES[0],
 };
 
+const PRICE_INPUT_REGEXP = /^\d+$/;
+
 export {
   FiltersOptions,
   DEFAULT_FILTER,
   SortOptions,
   DEFAULT_SORT_OPTION,
-  EVENT_TYPES, EMPTY_POINT
+  EVENT_TYPES, EMPTY_POINT,
+  PRICE_INPUT_REGEXP
 };
