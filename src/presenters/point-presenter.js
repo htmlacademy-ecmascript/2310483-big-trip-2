@@ -132,7 +132,7 @@ export default class PointPresenter {
 
   #handleSubmit = (evt) => {
     evt.preventDefault();
-    const updatedData = {...this.#editorComponent.state};
+    const updatedData = {...this.#editorComponent.state.point};
     this.#editorComponent.updateElement(updatedData);
     this.#onDataUpdate(updatedData);
   };

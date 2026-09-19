@@ -32,23 +32,21 @@ export default class PointsModel {
     return this.#points;
   }
 
-  async updatePoint(updatedPoint) {
-    const pointIndex = this.#points.findIndex(
-      (point) => point.id === updatedPoint.id,
-    );
-
+  #updatePointClient(updatedPoint) {
+    const pointIndex = this.#points.findIndex((point) => point.id === updatedPoint.id);
     if (pointIndex === -1) {
       return;
     }
+    this.#points[pointIndex] = updatedPoint;
+    this.#points.sort(SortCb['sort-day']);
+  }
 
-    try {
-      await this.#tripApiService.updatePoint(
-        this.#adaptPointToRequest(updatedPoint),
-      );
-    } finally {
-      this.#points[pointIndex] = updatedPoint;
-      this.#points = this.#points.sort(SortCb['sort-day']);
-    }
+  async updatePointServer(updatedPoint) {
+    const response = await this.#tripApiService.updatePoint(
+      this.#adaptPointToRequest(updatedPoint)
+    );
+
+    this.#updatePointClient(this.#adaptPoint(response));
   }
 
   addPoint(point) {
@@ -76,16 +74,18 @@ export default class PointsModel {
   }
 
   #adaptPoints = (points) =>
-    points.map((point) => ({
-      id: point['id'],
-      basePrice: point['base_price'],
-      dateFrom: point['date_from'],
-      dateTo: point['date_to'],
-      destinationId: point['destination'],
-      isFavorite: point['is_favorite'],
-      offersIds: point['offers'],
-      type: point['type'],
-    }));
+    points.map(this.#adaptPoint);
+
+  #adaptPoint = (point) => ({
+    id: point['id'],
+    basePrice: point['base_price'],
+    dateFrom: point['date_from'],
+    dateTo: point['date_to'],
+    destinationId: point['destination'],
+    isFavorite: point['is_favorite'],
+    offersIds: point['offers'],
+    type: point['type'],
+  });
 
   #adaptPointToRequest = (point) => ({
     'id': point['id'],
