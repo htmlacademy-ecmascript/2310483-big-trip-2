@@ -116,7 +116,6 @@ const createPointEditorTemplate = (data) => {
 };
 
 export default class PointEditorView extends AbstractStatefulView {
-  updatedData = {};
   #dateFromPicker = null;
   #dateToPicker = null;
 
@@ -127,8 +126,10 @@ export default class PointEditorView extends AbstractStatefulView {
 
   constructor(data) {
     super();
-    this._state = {...data};
-    this.updatedData = {...data.point};
+    this._state = {
+      point: {...data.point},
+      referenceData: data.referenceData
+    };
     this.#setDatepickers();
     this.#handlerTypeChange();
     this.#handlerDestinationChange();
@@ -138,6 +139,10 @@ export default class PointEditorView extends AbstractStatefulView {
 
   get template() {
     return createPointEditorTemplate(this._state);
+  }
+
+  get state() {
+    return this._state;
   }
 
   removeElement() {
@@ -167,8 +172,8 @@ export default class PointEditorView extends AbstractStatefulView {
       if (!evt.target.matches('.event__type-input')) {
         return;
       }
-      this.updatedData = {...this._state.point, type: evt.target.value, offersIds: []};
-      this.updateElement({...this._state, point: {...this.updatedData}});
+      this._state.point = {...this._state.point, type: evt.target.value, offersIds: []};
+      this.updateElement({...this._state});
     });
   }
 
@@ -181,20 +186,20 @@ export default class PointEditorView extends AbstractStatefulView {
         input.reportValidity();
         return;
       }
-      this.updatedData.destinationId = destination.id;
-      this.updateElement({...this._state, point: {...this.updatedData}});
+      this._state.point.destinationId = destination.id;
+      this.updateElement({...this._state});
     });
   }
 
   #handleOffersChange() {
-    const updatedOffersIds = [...this.updatedData.offersIds];
+    const updatedOffersIds = [...this._state.point.offersIds];
     this.element.querySelectorAll('.event__offer-checkbox').forEach((checkbox) => checkbox.addEventListener('change', (evt) => {
       if (evt.target.checked) {
         updatedOffersIds.push(evt.target.id);
       } else {
         updatedOffersIds.splice(updatedOffersIds.indexOf(evt.target.id), 1);
       }
-      this.updatedData.offersIds = updatedOffersIds;
+      this._state.point.offersIds = updatedOffersIds;
     }));
   }
 
@@ -207,7 +212,7 @@ export default class PointEditorView extends AbstractStatefulView {
         input.reportValidity();
         return;
       }
-      this.updatedData.basePrice = Number(evt.target.value);
+      this._state.point.basePrice = Number(evt.target.value);
     });
   }
 
@@ -219,9 +224,12 @@ export default class PointEditorView extends AbstractStatefulView {
     this.#dateFromPicker = flatpickr(startInput, {
       enableTime: true,
       dateFormat: DateFormat.FLATPICKR,
-      defaultDate: this.updatedData.dateFrom,
+      defaultDate: point.dateFrom,
       onChange: ([userDate]) => {
-        this.updatedData.dateFrom = userDate;
+        this._state.point.dateFrom = userDate;
+        if (userDate.getTime() > new Date(point.dateTo).getTime()) {
+          this.updateElement({...this._state, point: {...point, dateTo: userDate}});
+        }
       },
     });
 
@@ -229,12 +237,12 @@ export default class PointEditorView extends AbstractStatefulView {
       enableTime: true,
       dateFormat: DateFormat.FLATPICKR,
       defaultDate: point.dateTo,
-      minDate: this.updatedData.dateFrom,
+      minDate: point.dateFrom,
       onChange: ([userDate]) => {
         if (!userDate) {
           return;
         }
-        this.updatedData.dateTo = userDate;
+        this._state.point.dateTo = userDate;
       }
     });
   }
@@ -258,3 +266,10 @@ export default class PointEditorView extends AbstractStatefulView {
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onReset);
   }
 }
+
+/* if (userDate.getTime() > new Date(this._state.point.dateTo).getTime()) {
+          const additionalTime = dayjs(this._state.point.dateFrom).diff(dayjs(this._state.point.dateTo), 'millisecond');
+          this._state.point.dateTo = dayjs(this._state.point.dateFrom).add(additionalTime, 'millisecond').toISOString();
+          this.updateElement({...this._state});
+        } */
+

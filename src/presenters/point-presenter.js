@@ -120,12 +120,19 @@ export default class PointPresenter {
   };
 
   #handleEditClose = () => {
+    this.#editorComponent.updateElement({
+      point: {...this.#point},
+      referenceData: {
+        destinations: this.#destinations,
+        offersData: this.#offersData
+      }
+    });
     this.#replaceFormToPoint();
   };
 
   #handleSubmit = (evt) => {
     evt.preventDefault();
-    const updatedData = this.#editorComponent.updatedData;
+    const updatedData = {...this.#editorComponent.state};
     this.#editorComponent.updateElement(updatedData);
     this.#onDataUpdate(updatedData);
   };
