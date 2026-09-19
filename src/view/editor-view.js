@@ -25,10 +25,11 @@ const createPointEditorTemplate = (data) => {
     basePrice,
     offersIds
   } = point;
+
   const {getFormDate} = new DateServices();
   const currentType = type ?? 'flight';
-  const eventTypes = offersData.map((offer) => offer.type);
-  const offersList = offersData.find((offer) => offer.type === currentType).offers;
+  const eventTypes = offersData.map((item) => item.type);
+  const offersList = offersData.find((item) => item.type === type).offers;
   const currentDestination = destinations.find((item) => item.id === destinationId);
 
   return `
@@ -92,7 +93,7 @@ const createPointEditorTemplate = (data) => {
                 ${(offersList.map((offerOption) => `<div class="event__offer-selector">
                       <input class="event__offer-checkbox  visually-hidden" id="${offerOption.id}" type="checkbox" name="${offerOption.value}" ${offersIds.includes(offerOption.id) ? 'checked' : ''}>
                       <label class="event__offer-label" for="${offerOption.id}">
-                        <span class="event__offer-title">${offerOption.title}</span>
+                        <span class="event__offer-title">${offerOption.value}</span>
                         &plus;&euro;&nbsp;
                         <span class="event__offer-price">${offerOption.price}</span>
                       </label>
@@ -104,7 +105,7 @@ const createPointEditorTemplate = (data) => {
             <p class="event__destination-description">${currentDestination.description}</p>
             <div class="event__photos-container">
             <div class="event__photos-tape">
-              ${currentDestination.pictures.map((photo) => `<img class="event__photo" src="${photo.url}" alt="${photo.alt}">`).join('')}
+              ${currentDestination.pictures.map((photo) => `<img class="event__photo" src="${photo.src}" alt="${photo.alt}">`).join('')}
             </div>
             </div>
           </section>` : ''}

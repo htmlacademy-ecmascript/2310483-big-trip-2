@@ -1,25 +1,41 @@
-import { eventPointDataGenerator, citiesListGenerator, offersListGenerator } from '../../fake-api/services/fake-data-generators.js';
-import { EVENT_TYPES } from '../constants.js';
-import Observable from '../../framework/observable.js';
 import { SortCb } from '../../utils/functions.js';
 
-const POINTS_COUNT = 10;
+export default class PointsModel {
+  #points = null;
+  #destinations = null;
+  #offersData = null;
+  #tripApiService = null;
 
-export default class PointsModel extends Observable {
-  #points = Array.from({length: POINTS_COUNT}, (_, index) => eventPointDataGenerator(index));
-  #destinations = citiesListGenerator();
-  #offersData = offersListGenerator(EVENT_TYPES);
+  constructor(tripApiService) {
+    this.#tripApiService = tripApiService;
+  }
+
+  async init() {
+    try {
+      const [points, destinations, offers] = await Promise.all([
+        this.#tripApiService.getPoints(),
+        this.#tripApiService.getDestinations(),
+        this.#tripApiService.getOffers(),
+      ]);
+
+      this.#points = this.#adaptPoints(points);
+      this.#destinations = this.#adaptDestinations(destinations);
+      this.#offersData = this.#adaptOffers(offers);
+    } catch (e) {
+      this.#points = [];
+      this.#destinations = [];
+      this.#offersData = new Map();
+    }
+  }
 
   get points() {
     return this.#points;
   }
 
-  set points(points) {
-    this.#points = [...points];
-  }
-
   updatePoint(updatedPoint) {
-    const pointIndex = this.#points.findIndex((point) => point.id === updatedPoint.id);
+    const pointIndex = this.#points.findIndex(
+      (point) => point.id === updatedPoint.id,
+    );
 
     if (pointIndex === -1) {
       return;
@@ -29,7 +45,10 @@ export default class PointsModel extends Observable {
   }
 
   addPoint(point) {
-    this.#points = [...this.#points, {...point, id: `${this.#points.length}`}].sort(SortCb['sort-day']);
+    this.#points = [
+      ...this.#points,
+      { ...point, id: `${this.#points.length}` },
+    ].sort(SortCb['sort-day']);
   }
 
   deletePoint(pointId) {
@@ -48,4 +67,41 @@ export default class PointsModel extends Observable {
   get offersData() {
     return this.#offersData;
   }
+
+  #adaptPoints = (points) =>
+    points.map((point) => ({
+      id: point['id'],
+      basePrice: point['base_price'],
+      dateFrom: point['date_from'],
+      dateTo: point['date_to'],
+      destinationId: point['destination'],
+      isFavorite: point['is_favorite'],
+      offersIds: point['offers'],
+      type: point['type'],
+    }));
+
+  #adaptDestinations = (destinations) =>
+    destinations.map((destination) => ({
+      id: destination['id'],
+      name: destination['name'],
+      description: destination['description'],
+      pictures: destination['pictures'].map((picture) => ({
+        src: picture['src'],
+        description: picture['desctiption'],
+      })),
+    }));
+
+  #adaptOffers = (data) => {
+    const result = data.map((item) => ({
+      type: item['type'],
+      offers: item['offers'].map((offer) => this.#adaptOffer(offer)),
+    }));
+    return result;
+  };
+
+  #adaptOffer = (offer) => ({
+    id: offer['id'],
+    value: offer['title'],
+    price: offer['price'],
+  });
 }
