@@ -6,6 +6,7 @@ dayjs.extend(duration);
 const FORM_DATE_FORMAT = 'DD/MM/YY HH:mm';
 const TIME_FORMAT = 'HH:mm';
 const DATE_FORMAT = 'MMM D';
+const INFO_FORMAT = 'D MMM';
 
 export default class DateSevices {
   getFormDate(date) {
@@ -14,6 +15,21 @@ export default class DateSevices {
 
   getDate(date) {
     return dayjs(date).format(DATE_FORMAT);
+  }
+
+  getInfoDate(dates) {
+    const start = dayjs(dates.start);
+    const end = dayjs(dates.end);
+
+    if (start.isSame(end, 'month')) {
+      return `${start.date()} &mdash; ${end.format(INFO_FORMAT)}`;
+    }
+
+    return `${start.format(INFO_FORMAT)} &mdash; ${end.format(INFO_FORMAT)}`;
+  }
+
+  isOneDayTrip({start, end}) {
+    return dayjs(start).isSame(dayjs(end), 'day');
   }
 
   getTime(date) {

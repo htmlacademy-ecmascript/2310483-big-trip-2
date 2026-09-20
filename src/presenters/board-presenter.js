@@ -37,10 +37,13 @@ export default class BoardPresenter {
   #pointsPresenters = new Map();
   #currentSortOption = DEFAULT_SORT_OPTION;
 
-  constructor({ mainContainer, pointsModel, filtersModel }) {
+  #rerenderInfo = null;
+
+  constructor({ mainContainer, pointsModel, filtersModel, rerenderInfo }) {
     this.#mainContainer = mainContainer;
     this.#pointsModel = pointsModel;
     this.#filtersModel = filtersModel;
+    this.#rerenderInfo = rerenderInfo;
   }
 
   get #filteredPoints() {
@@ -165,6 +168,7 @@ export default class BoardPresenter {
       pointPresenter.setIsDeleting(true);
       await this.#pointsModel.deletePoint(id);
       this.rerender();
+      this.#rerenderInfo(this.points);
     } catch {
       pointPresenter.setAborting();
     }
@@ -228,6 +232,7 @@ export default class BoardPresenter {
       await this.#pointsModel.createPoint(point);
       this.#handleCreatorClose();
       this.rerender();
+      this.#rerenderInfo(this.points);
     } catch (e) {
       this.#newPointEditComponent.shake(
         this.#newPointEditComponent.updateElement({
@@ -248,6 +253,7 @@ export default class BoardPresenter {
       pointPresenter.setIsSaving(true);
       await this.#pointsModel.updatePointServer(updatedPoint);
       this.rerender();
+      this.#rerenderInfo(this.points);
     } catch (e) {
       pointPresenter.setAborting();
     }
