@@ -147,9 +147,13 @@ export default class BoardPresenter {
     this.rerender();
   };
 
-  #handlePointDelete = (id) => {
-    this.#pointsModel.deletePoint(id);
-    this.rerender();
+  #handlePointDelete = async (id) => {
+    try {
+      await this.#pointsModel.deletePoint(id);
+      this.rerender();
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   #handleEditorMode = () => {
@@ -194,17 +198,21 @@ export default class BoardPresenter {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
-  #handleCreatorSubmit = (evt) => {
+  #handleCreatorSubmit = async (evt) => {
     evt.preventDefault();
-    const point = this.#newPointEditComponent.updatedData;
+    try {
+      const point = {...this.#newPointEditComponent.state.point};
 
-    if (point.destinationId === null) {
-      return;
+      if (point.destinationId === null) {
+        return;
+      }
+
+      await this.#pointsModel.createPoint(point);
+      this.#handleCreatorClose();
+      this.rerender();
+    } catch (e) {
+      console.log(e);
     }
-
-    this.#pointsModel.addPoint(point);
-    this.#handleCreatorClose();
-    this.rerender();
   };
 
   #handlePointChange = async (updatedPoint) => {

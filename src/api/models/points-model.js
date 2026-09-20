@@ -1,5 +1,11 @@
 import { SortCb } from '../../utils/functions.js';
 
+const UpdateActions = {
+  DELETE: 'DELETE',
+  UPDATE: 'UPDATE',
+  CREATE: 'CREATE',
+};
+
 export default class PointsModel {
   #points = null;
   #destinations = null;
@@ -32,13 +38,22 @@ export default class PointsModel {
     return this.#points;
   }
 
-  #updatePointClient(updatedPoint) {
-    const pointIndex = this.#points.findIndex((point) => point.id === updatedPoint.id);
-    if (pointIndex === -1) {
-      return;
+  #updatePointsClient(updatedPoint, action = 'UPDATE') {
+    const pointIndex = action === 'UPDATE' ? this.#points.findIndex((point) => point.id === updatedPoint.id) : null;
+    switch (action) {
+      case 'DELETE':
+        this.#points = this.#points.filter((point) => point.id !== updatedPoint.id);
+        this.#points.sort(SortCb['sort-day']);
+        break;
+      case 'UPDATE':
+        this.#points[pointIndex] = updatedPoint;
+        this.#points.sort(SortCb['sort-day']);
+        break;
+      case 'CREATE':
+        this.#points = this.#points.concat(updatedPoint);
+        this.#points.sort(SortCb['sort-day']);
+        break;
     }
-    this.#points[pointIndex] = updatedPoint;
-    this.#points.sort(SortCb['sort-day']);
   }
 
   async updatePointServer(updatedPoint) {
@@ -46,23 +61,27 @@ export default class PointsModel {
       this.#adaptPointToRequest(updatedPoint)
     );
 
-    this.#updatePointClient(this.#adaptPoint(response));
+    this.#updatePointsClient(this.#adaptPoint(response));
   }
 
-  addPoint(point) {
-    this.#points = [
-      ...this.#points,
-      { ...point, id: `${this.#points.length}` },
-    ].sort(SortCb['sort-day']);
+  async createPoint(point) {
+    const pointData = this.#adaptNewPointToRequest(point);
+
+    const response = await this.#tripApiService.createPoint(
+      pointData
+    );
+
+    this.#updatePointsClient(this.#adaptPoint(response), UpdateActions.CREATE);
   }
 
-  deletePoint(pointId) {
+  async deletePoint(pointId) {
     const pointIndex = this.#points.findIndex((point) => point.id === pointId);
     if (pointIndex === -1) {
       return;
     }
 
-    this.#points = this.#points.filter((point) => point.id !== pointId);
+    await this.#tripApiService.deletePoint(pointId);
+    this.#updatePointsClient(this.#points[pointIndex], UpdateActions.DELETE);
   }
 
   get destinations() {
@@ -89,6 +108,16 @@ export default class PointsModel {
 
   #adaptPointToRequest = (point) => ({
     'id': point['id'],
+    'base_price': point['basePrice'],
+    'date_from': point['dateFrom'],
+    'date_to': point['dateTo'],
+    'destination': point['destinationId'],
+    'is_favorite': point['isFavorite'],
+    'offers': point['offersIds'],
+    'type': point['type'],
+  });
+
+  #adaptNewPointToRequest = (point) => ({
     'base_price': point['basePrice'],
     'date_from': point['dateFrom'],
     'date_to': point['dateTo'],

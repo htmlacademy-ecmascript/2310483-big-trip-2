@@ -186,6 +186,7 @@ export default class PointEditorView extends AbstractStatefulView {
         input.reportValidity();
         return;
       }
+
       this._state.point.destinationId = destination.id;
       this.updateElement({...this._state});
     });
