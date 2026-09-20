@@ -9,9 +9,6 @@ const METHOD = {
 
 
 export default class TripApiServices extends ApiService {
-  constructor(endPoint, authorization) {
-    super(endPoint, authorization);
-  }
 
   async getPoints() {
     const response = await this._load({
@@ -43,6 +40,26 @@ export default class TripApiServices extends ApiService {
     const response = await this._load({
       url: `points/${point.id}`,
       method: METHOD.PUT,
+      body: JSON.stringify(point),
+      headers
+    });
+
+    return ApiService.parseResponse(response);
+  }
+
+  async deletePoint(pointId) {
+    await this._load({
+      url: `points/${pointId}`,
+      method: METHOD.DELETE
+    });
+  }
+
+  async createPoint(point) {
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    const response = await this._load({
+      url: 'points',
+      method: METHOD.POST,
       body: JSON.stringify(point),
       headers
     });

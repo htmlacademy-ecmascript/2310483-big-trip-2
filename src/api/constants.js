@@ -1,4 +1,4 @@
-const FiltersOptions = [
+export const FiltersOptions = [
   {
     id: 'filter-everything',
     name: 'Everything',
@@ -21,9 +21,9 @@ const FiltersOptions = [
   }
 ];
 
-const DEFAULT_FILTER = FiltersOptions[0].value;
+export const DEFAULT_FILTER = FiltersOptions[0].value;
 
-const SortOptions = [
+export const SortOptions = [
   {
     id: 'sort-day',
     name: 'Day',
@@ -61,9 +61,9 @@ const SortOptions = [
   }
 ];
 
-const DEFAULT_SORT_OPTION = SortOptions[0].value;
+export const DEFAULT_SORT_OPTION = SortOptions[0].value;
 
-const EVENT_TYPES = [
+export const EVENT_TYPES = [
   'flight',
   'taxi',
   'check-in',
@@ -75,7 +75,7 @@ const EVENT_TYPES = [
   'restaurant'
 ];
 
-const EMPTY_POINT = {
+export const EMPTY_POINT = {
   id: null,
   basePrice: '0',
   dateFrom: new Date(),
@@ -86,13 +86,4 @@ const EMPTY_POINT = {
   type: EVENT_TYPES[0],
 };
 
-const PRICE_INPUT_REGEXP = /^\d+$/;
-
-export {
-  FiltersOptions,
-  DEFAULT_FILTER,
-  SortOptions,
-  DEFAULT_SORT_OPTION,
-  EVENT_TYPES, EMPTY_POINT,
-  PRICE_INPUT_REGEXP
-};
+export const PRICE_INPUT_REGEXP = /^\d+$/;

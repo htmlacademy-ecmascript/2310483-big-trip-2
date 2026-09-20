@@ -102,6 +102,28 @@ export default class PointPresenter {
     }
   }
 
+  setIsSaving(isSaving) {
+    this.#editorComponent.updateElement({isSaving, isDisabled: isSaving});
+  }
+
+  setIsDeleting(isDeleting) {
+    this.#editorComponent.updateElement({isDeleting, isDisabled: isDeleting});
+  }
+
+  setAborting() {
+    if (!this.#isEditMode) {
+      this.#pointComponent.shake();
+    }
+
+    const resetFormState = () => this.#editorComponent.updateElement({
+      isSaving: false,
+      isDeleting: false,
+      isDisabled: false
+    });
+
+    this.#editorComponent.shake(resetFormState);
+  }
+
   #replacePointToForm() {
     replace(this.#editorComponent, this.#pointComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);
@@ -122,24 +144,19 @@ export default class PointPresenter {
   #handleEditClose = () => {
     this.#editorComponent.updateElement({
       point: {...this.#point},
-      referenceData: {
-        destinations: this.#destinations,
-        offersData: this.#offersData
-      }
     });
     this.#replaceFormToPoint();
   };
 
   #handleSubmit = (evt) => {
     evt.preventDefault();
-    const updatedData = {...this.#editorComponent.state.point};
+    const updatedData = {...this.#editorComponent.point};
     this.#editorComponent.updateElement(updatedData);
     this.#onDataUpdate(updatedData);
   };
 
   #handleDelete = (id) => {
     this.#onPointDelete(id);
-    this.#replaceFormToPoint();
   };
 
   #escKeyDownHandler = (evt) => {

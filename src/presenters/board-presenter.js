@@ -3,6 +3,7 @@ import EmptyListView from '../view/event-list-view/empty-list-view.js';
 import SortView from '../view/sort-view.js';
 import PointEditorView from '../view/editor-view.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import {
   SortOptions,
   DEFAULT_SORT_OPTION,
@@ -11,6 +12,11 @@ import {
 } from '../api/constants.js';
 import PointPresenter from './point-presenter.js';
 import { FiltersCb, SortCb } from '../utils/functions.js';
+
+const UiBlokerLimits = {
+  LOWER_LIMIT: 100,
+  UPPER_LIMIT: 2000
+};
 
 export default class BoardPresenter {
   #pointsModel = null;
@@ -21,6 +27,10 @@ export default class BoardPresenter {
   #emptyListComponent = null;
   #newPointEditComponent = null;
   #sortComponent = null;
+  #uiBlocker = new UiBlocker({
+    lowerLimit: UiBlokerLimits.LOWER_LIMIT,
+    upperLimit: UiBlokerLimits.UPPER_LIMIT
+  });
 
   #isCreatorMode = false;
 
@@ -147,9 +157,19 @@ export default class BoardPresenter {
     this.rerender();
   };
 
-  #handlePointDelete = (id) => {
-    this.#pointsModel.deletePoint(id);
-    this.rerender();
+  #handlePointDelete = async (id) => {
+    this.#uiBlocker.block();
+
+    const pointPresenter = this.#pointsPresenters.get(id);
+    try {
+      pointPresenter.setIsDeleting(true);
+      await this.#pointsModel.deletePoint(id);
+      this.rerender();
+    } catch {
+      pointPresenter.setAborting();
+    }
+
+    this.#uiBlocker.unblock();
   };
 
   #handleEditorMode = () => {
@@ -194,26 +214,45 @@ export default class BoardPresenter {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
-  #handleCreatorSubmit = (evt) => {
-    evt.preventDefault();
-    const point = this.#newPointEditComponent.updatedData;
+  #handleCreatorSubmit = async (evt) => {
+    this.#uiBlocker.block();
 
-    if (point.destinationId === null) {
-      return;
+    evt.preventDefault();
+    try {
+      const point = { ...this.#newPointEditComponent.point };
+
+      this.#newPointEditComponent.updateElement({
+        isSaving: true,
+        isDisabled: true
+      });
+      await this.#pointsModel.createPoint(point);
+      this.#handleCreatorClose();
+      this.rerender();
+    } catch (e) {
+      this.#newPointEditComponent.shake(
+        this.#newPointEditComponent.updateElement({
+          isSaving: false,
+          isDisabled: false
+        })
+      );
     }
 
-    this.#pointsModel.addPoint(point);
-    this.#handleCreatorClose();
-    this.rerender();
+    this.#uiBlocker.unblock();
   };
 
   #handlePointChange = async (updatedPoint) => {
+    this.#uiBlocker.block();
+
+    const pointPresenter = this.#pointsPresenters.get(updatedPoint.id);
     try {
+      pointPresenter.setIsSaving(true);
       await this.#pointsModel.updatePointServer(updatedPoint);
       this.rerender();
     } catch (e) {
-      console.log(e);
+      pointPresenter.setAborting();
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #escKeyDownHandler = (evt) => {
