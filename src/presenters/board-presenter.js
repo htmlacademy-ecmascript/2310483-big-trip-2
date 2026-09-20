@@ -3,6 +3,7 @@ import EmptyListView from '../view/event-list-view/empty-list-view.js';
 import SortView from '../view/sort-view.js';
 import PointEditorView from '../view/editor-view.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import {
   SortOptions,
   DEFAULT_SORT_OPTION,
@@ -11,6 +12,11 @@ import {
 } from '../api/constants.js';
 import PointPresenter from './point-presenter.js';
 import { FiltersCb, SortCb } from '../utils/functions.js';
+
+const UiBlokerLimits = {
+  LOWER_LIMIT: 100,
+  UPPER_LIMIT: 2000
+};
 
 export default class BoardPresenter {
   #pointsModel = null;
@@ -21,6 +27,10 @@ export default class BoardPresenter {
   #emptyListComponent = null;
   #newPointEditComponent = null;
   #sortComponent = null;
+  #uiBlocker = new UiBlocker({
+    lowerLimit: UiBlokerLimits.LOWER_LIMIT,
+    upperLimit: UiBlokerLimits.UPPER_LIMIT
+  });
 
   #isCreatorMode = false;
 
@@ -148,12 +158,18 @@ export default class BoardPresenter {
   };
 
   #handlePointDelete = async (id) => {
+    this.#uiBlocker.block();
+
+    const pointPresenter = this.#pointsPresenters.get(id);
     try {
+      pointPresenter.setIsDeleting(true);
       await this.#pointsModel.deletePoint(id);
       this.rerender();
-    } catch (e) {
-      console.log(e);
+    } catch {
+      pointPresenter.setAborting();
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #handleEditorMode = () => {
@@ -199,29 +215,44 @@ export default class BoardPresenter {
   };
 
   #handleCreatorSubmit = async (evt) => {
+    this.#uiBlocker.block();
+
     evt.preventDefault();
     try {
-      const point = {...this.#newPointEditComponent.state.point};
+      const point = { ...this.#newPointEditComponent.point };
 
-      if (point.destinationId === null) {
-        return;
-      }
-
+      this.#newPointEditComponent.updateElement({
+        isSaving: true,
+        isDisabled: true
+      });
       await this.#pointsModel.createPoint(point);
       this.#handleCreatorClose();
       this.rerender();
     } catch (e) {
-      console.log(e);
+      this.#newPointEditComponent.shake(
+        this.#newPointEditComponent.updateElement({
+          isSaving: false,
+          isDisabled: false
+        })
+      );
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #handlePointChange = async (updatedPoint) => {
+    this.#uiBlocker.block();
+
+    const pointPresenter = this.#pointsPresenters.get(updatedPoint.id);
     try {
+      pointPresenter.setIsSaving(true);
       await this.#pointsModel.updatePointServer(updatedPoint);
       this.rerender();
     } catch (e) {
-      console.log(e);
+      pointPresenter.setAborting();
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #escKeyDownHandler = (evt) => {

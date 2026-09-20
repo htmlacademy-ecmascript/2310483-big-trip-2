@@ -9,9 +9,6 @@ const METHOD = {
 
 
 export default class TripApiServices extends ApiService {
-  constructor(endPoint, authorization) {
-    super(endPoint, authorization);
-  }
 
   async getPoints() {
     const response = await this._load({
