@@ -30,5 +30,7 @@ export const reduceSelectedOffersPrice = (acc, offer) => acc + offer.price;
 export const getSelectedOffersPrice = (points, offersData) => {
   const offers = offersData.reduce((acc, item) => [...acc, ...item.offers], []);
   const selectedOffers = points.reduce(getSelectedOffersIds, []);
-  return offers.filter((offer) => selectedOffers.includes(offer.id)).reduce(reduceSelectedOffersPrice, 0);
+  return selectedOffers
+    .map((id) => offers.find((offer) => offer.id === id))
+    .reduce(reduceSelectedOffersPrice, 0);
 };
