@@ -51,12 +51,10 @@ export default class TripApiServices extends ApiService {
   }
 
   async deletePoint(pointId) {
-    const response = await this._load({
+    await this._load({
       url: `points/${pointId}`,
       method: METHOD.DELETE
     });
-
-    return ApiService.parseResponse(response);
   }
 
   async createPoint(point) {

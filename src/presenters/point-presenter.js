@@ -139,7 +139,6 @@ export default class PointPresenter {
 
   #handleDelete = (id) => {
     this.#onPointDelete(id);
-    this.#replaceFormToPoint();
   };
 
   #escKeyDownHandler = (evt) => {
