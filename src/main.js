@@ -4,13 +4,18 @@ import PointsModel from './api/models/points-model.js';
 import FiltersModel from './api/models/filters-model.js';
 import NewPointButtonView from './view/new-point-button-view.js';
 import { render, RenderPosition } from './framework/render.js';
+import TripApiServices from './api/services/trip-api-services.js';
+
+const authToken = `Basic ${self.crypto.randomUUID()}`;
+const BASE_URL = 'https://22.objects.htmlacademy.pro/big-trip';
 
 const containers = {
   filters: document.querySelector('.trip-controls__filters'),
   main: document.querySelector('.trip-events'),
   tripMain: document.querySelector('.trip-main'),
 };
-const pointsModel = new PointsModel();
+const tripApiServices = new TripApiServices(BASE_URL, authToken);
+const pointsModel = new PointsModel(tripApiServices);
 const filtersModel = new FiltersModel();
 
 const boardPresenter = new BoardPresenter({
@@ -29,6 +34,8 @@ const filtersPresenter = new FiltersPresenter({
   onFilterChange: () => boardPresenter.handleFilterTypeChange(),
 });
 
-render(newPointButton, containers.tripMain, RenderPosition.BEFOREEND);
-filtersPresenter.init();
-boardPresenter.init();
+pointsModel.init().finally(() => {
+  render(newPointButton, containers.tripMain, RenderPosition.BEFOREEND);
+  boardPresenter.init();
+  filtersPresenter.init();
+});

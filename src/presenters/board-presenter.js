@@ -207,13 +207,12 @@ export default class BoardPresenter {
     this.rerender();
   };
 
-  #handlePointChange = (updatedPoint) => {
-    this.#pointsModel.updatePoint(updatedPoint);
-
-    const pointPresenter = this.#pointsPresenters.get(updatedPoint.id);
-
-    if (pointPresenter) {
-      pointPresenter.update(updatedPoint);
+  #handlePointChange = async (updatedPoint) => {
+    try {
+      await this.#pointsModel.updatePointServer(updatedPoint);
+      this.rerender();
+    } catch (e) {
+      console.log(e);
     }
   };
 
