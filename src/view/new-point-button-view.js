@@ -6,10 +6,6 @@ const createNewPointButtonTemplate = () =>
 export default class NewPointButtonView extends AbstractView {
   #openEditorHandler = null;
 
-  constructor() {
-    super();
-  }
-
   get template() {
     return createNewPointButtonTemplate();
   }

@@ -38,6 +38,14 @@ export default class PointsModel {
     return this.#points;
   }
 
+  get destinations() {
+    return this.#destinations;
+  }
+
+  get offersData() {
+    return this.#offersData;
+  }
+
   #updatePointsClient(updatedPoint, action = 'UPDATE') {
     const pointIndex = action === 'UPDATE' ? this.#points.findIndex((point) => point.id === updatedPoint.id) : null;
     switch (action) {
@@ -82,14 +90,6 @@ export default class PointsModel {
 
     await this.#tripApiService.deletePoint(pointId);
     this.#updatePointsClient(this.#points[pointIndex], UpdateActions.DELETE);
-  }
-
-  get destinations() {
-    return this.#destinations;
-  }
-
-  get offersData() {
-    return this.#offersData;
   }
 
   #adaptPoints = (points) =>

@@ -18,3 +18,17 @@ export const SortCb = {
   'sort-price': (a, b) => b.basePrice - a.basePrice
 };
 
+export const normalizePositiveInteger = (value) => {
+  const digits = String(value).replace(/\D/g, '');
+  return Number.parseInt(digits.replace(/^0+/, ''), 10);
+};
+
+export const getSelectedOffersIds = (acc, point) => [...acc, ...point.offersIds];
+
+export const reduceSelectedOffersPrice = (acc, offer) => acc + offer.price;
+
+export const getSelectedOffersPrice = (points, offersData) => {
+  const offers = offersData.reduce((acc, item) => [...acc, ...item.offers], []);
+  const selectedOffers = points.reduce(getSelectedOffersIds, []);
+  return offers.filter((offer) => selectedOffers.includes(offer.id)).reduce(reduceSelectedOffersPrice, 0);
+};
