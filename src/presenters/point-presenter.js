@@ -131,6 +131,9 @@ export default class PointPresenter {
   }
 
   #replaceFormToPoint() {
+    this.#editorComponent.updateElement({
+      point: {...this.#point},
+    });
     replace(this.#pointComponent, this.#editorComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#isEditMode = false;
@@ -142,9 +145,6 @@ export default class PointPresenter {
   };
 
   #handleEditClose = () => {
-    this.#editorComponent.updateElement({
-      point: {...this.#point},
-    });
     this.#replaceFormToPoint();
   };
 

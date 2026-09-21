@@ -1,17 +1,33 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
-const createNewPointButtonTemplate = () =>
-  '<button class="trip-main__event-add-btn  btn  btn--big  btn--yellow" type="button">New event</button>';
+const createNewPointButtonTemplate = ({isDisabled}) =>
+  `<button class="trip-main__event-add-btn  btn  btn--big  btn--yellow" type="button" ${isDisabled ? 'disabled' : ''}>New event</button>`;
 
-export default class NewPointButtonView extends AbstractView {
-  #openEditorHandler = null;
+export default class NewPointButtonView extends AbstractStatefulView {
+  #handleEditorOpen = null;
 
-  get template() {
-    return createNewPointButtonTemplate();
+  constructor() {
+    super();
+
+    this._state = {
+      isDisabled: false
+    };
   }
 
+  get template() {
+    return createNewPointButtonTemplate({isDisabled: this._state.isDisabled});
+  }
+
+  _restoreHandlers() {
+    this.setOpenEditorHandler(this.#handleEditorOpen);
+  }
+
+  setDisable = (isDisabled) => {
+    this.updateElement({isDisabled});
+  };
+
   setOpenEditorHandler = (callback) => {
-    this.#openEditorHandler = callback;
-    this.element.addEventListener('click', this.#openEditorHandler);
+    this.#handleEditorOpen = callback;
+    this.element.addEventListener('click', this.#handleEditorOpen);
   };
 }

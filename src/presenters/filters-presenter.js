@@ -1,5 +1,5 @@
 import FiltersView from '../view/filters-view.js';
-import {render} from '../framework/render.js';
+import { render, remove } from '../framework/render.js';
 
 export default class FiltersPresenter {
   #filtersContainer = null;
@@ -8,7 +8,7 @@ export default class FiltersPresenter {
   #filtersModel = null;
   #onFilterChange = null;
 
-  constructor({container, pointsModel, filtersModel, onFilterChange}) {
+  constructor({ container, pointsModel, filtersModel, onFilterChange }) {
     this.#pointsModel = pointsModel;
     this.#filtersContainer = container;
     this.#filtersModel = filtersModel;
@@ -27,23 +27,32 @@ export default class FiltersPresenter {
     return this.#pointsModel.points;
   }
 
-  setCurrentFilter(filter) {
+  #setCurrentFilter(filter) {
     this.#filtersModel.setCurrentFilter(filter);
   }
+
+  resetFilters = () => {
+    if (this.#filtersComponent === null) {
+      return;
+    }
+    remove(this.#filtersComponent);
+    this.#filtersComponent = null;
+    this.init();
+  };
 
   init() {
     this.#filtersComponent = new FiltersView({
       filters: this.filters,
       points: this.points,
       currentFilter: this.currentFilter,
-      onFilterTypeChange: this.#onFilterTypeChange
+      onFilterTypeChange: this.#onFilterTypeChange,
     });
     render(this.#filtersComponent, this.#filtersContainer);
   }
 
   #onFilterTypeChange = (evt) => {
     evt.preventDefault();
-    this.setCurrentFilter(evt.target.value);
+    this.#setCurrentFilter(evt.target.value);
     this.#onFilterChange?.();
   };
 }

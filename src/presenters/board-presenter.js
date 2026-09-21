@@ -15,7 +15,7 @@ import { FiltersCb, SortCb } from '../utils/functions.js';
 
 const UiBlokerLimits = {
   LOWER_LIMIT: 100,
-  UPPER_LIMIT: 2000
+  UPPER_LIMIT: 2000,
 };
 
 export default class BoardPresenter {
@@ -25,29 +25,38 @@ export default class BoardPresenter {
 
   #eventListComponent = new EventListView();
   #emptyListComponent = null;
+  #onNewPointDisable = null;
   #newPointEditComponent = null;
   #sortComponent = null;
   #uiBlocker = new UiBlocker({
     lowerLimit: UiBlokerLimits.LOWER_LIMIT,
-    upperLimit: UiBlokerLimits.UPPER_LIMIT
+    upperLimit: UiBlokerLimits.UPPER_LIMIT,
   });
 
   #isCreatorMode = false;
+  #onFilterReset = null;
 
   #pointsPresenters = new Map();
   #currentSortOption = DEFAULT_SORT_OPTION;
 
   #rerenderInfo = null;
 
-  constructor({ mainContainer, pointsModel, filtersModel, rerenderInfo }) {
+  constructor({
+    mainContainer,
+    pointsModel,
+    filtersModel,
+    rerenderInfo,
+    onNewButtonDisable,
+  }) {
     this.#mainContainer = mainContainer;
     this.#pointsModel = pointsModel;
     this.#filtersModel = filtersModel;
     this.#rerenderInfo = rerenderInfo;
+    this.#onNewPointDisable = onNewButtonDisable;
   }
 
   get #filteredPoints() {
-    const points = [...this.#pointsModel.points];
+    const points = this.points;
     const currentFilter = this.#filtersModel.currentFilter;
 
     return currentFilter !== DEFAULT_FILTER
@@ -58,9 +67,11 @@ export default class BoardPresenter {
   get #sortedPoints() {
     const filteredPoints = this.#filteredPoints;
 
-    return this.#currentSortOption !== DEFAULT_SORT_OPTION
-      ? filteredPoints.sort(SortCb[this.#currentSortOption])
-      : filteredPoints;
+    if (filteredPoints.length === 0) {
+      return [];
+    }
+
+    return filteredPoints.sort(SortCb[this.#currentSortOption]);
   }
 
   get destinations() {
@@ -77,6 +88,7 @@ export default class BoardPresenter {
 
   init() {
     this.rerender();
+    this.#rerenderInfo(this.#sortedPoints);
   }
 
   rerender() {
@@ -85,18 +97,17 @@ export default class BoardPresenter {
   }
 
   #renderPointsBoard() {
-    if (this.#sortedPoints.length === 0) {
-      this.#emptyListComponent = new EmptyListView(
-        this.#filtersModel.currentFilter,
-      );
-      render(this.#emptyListComponent, this.#mainContainer);
-      return;
-    }
-    render(this.#eventListComponent, this.#mainContainer);
-    if (this.#sortedPoints.length === 0) {
+    if (!this.#isCreatorMode && this.#sortedPoints.length === 0) {
       this.#renderEmptyList();
       return;
     }
+
+    if (this.#sortedPoints.length === 0) {
+      return;
+    }
+
+    render(this.#eventListComponent, this.#mainContainer);
+
     this.#renderSort();
     this.#renderPoints();
   }
@@ -108,12 +119,24 @@ export default class BoardPresenter {
       currentSortType: this.#currentSortOption,
     });
 
-    render(this.#sortComponent, this.#eventListComponent.element);
+    render(
+      this.#sortComponent,
+      this.#eventListComponent.element,
+      RenderPosition.BEFOREBEGIN,
+    );
   }
 
   #renderEmptyList() {
+    this.#emptyListComponent = new EmptyListView(
+      this.#filtersModel.currentFilter,
+    );
     render(this.#emptyListComponent, this.#mainContainer);
   }
+
+  #destroyEmtpyList = () => {
+    remove(this.#emptyListComponent);
+    this.#emptyListComponent = null;
+  };
 
   #renderPoint(point) {
     const pointPresenter = new PointPresenter({
@@ -142,8 +165,18 @@ export default class BoardPresenter {
       pointPresenter.destroy(),
     );
     this.#pointsPresenters.clear();
-    remove(this.#emptyListComponent);
-    this.#emptyListComponent = null;
+    this.#destroyEmtpyList();
+  }
+
+  setOnFilterReset(onFilterReset) {
+    this.#onFilterReset = onFilterReset;
+  }
+
+  #resetFilters() {
+    this.#filtersModel.setCurrentFilter(DEFAULT_FILTER);
+    this.#onFilterReset();
+    this.#currentSortOption = DEFAULT_SORT_OPTION;
+    this.rerender();
   }
 
   handleFilterTypeChange() {
@@ -168,7 +201,7 @@ export default class BoardPresenter {
       pointPresenter.setIsDeleting(true);
       await this.#pointsModel.deletePoint(id);
       this.rerender();
-      this.#rerenderInfo(this.points);
+      this.#rerenderInfo(this.#sortedPoints);
     } catch {
       pointPresenter.setAborting();
     }
@@ -190,8 +223,15 @@ export default class BoardPresenter {
       return;
     }
 
-    this.#handleEditorMode();
     this.#isCreatorMode = true;
+
+    if (this.#emptyListComponent) {
+      this.#destroyEmtpyList();
+    }
+
+    this.#onNewPointDisable(true);
+    this.#resetFilters();
+
     this.#newPointEditComponent = new PointEditorView({
       point: EMPTY_POINT,
       referenceData: {
@@ -199,11 +239,20 @@ export default class BoardPresenter {
         offersData: this.offersData,
       },
     });
-    render(
-      this.#newPointEditComponent,
-      this.#sortComponent.element,
-      RenderPosition.AFTEREND,
-    );
+
+    if (this.points.length === 0) {
+      render(
+        this.#newPointEditComponent,
+        this.#mainContainer,
+        RenderPosition.AFTERBEGIN,
+      );
+    } else {
+      render(
+        this.#newPointEditComponent,
+        this.#eventListComponent.element,
+        RenderPosition.AFTERBEGIN,
+      );
+    }
     this.#newPointEditComponent.setResetClickHandler(this.#handleCreatorClose);
     this.#newPointEditComponent.setSubmitClickHandler(
       this.#handleCreatorSubmit,
@@ -213,6 +262,12 @@ export default class BoardPresenter {
 
   #handleCreatorClose = () => {
     this.#isCreatorMode = false;
+
+    if (this.#sortedPoints.length === 0) {
+      this.#renderEmptyList();
+    }
+
+    this.#onNewPointDisable(false);
     remove(this.#newPointEditComponent);
     this.#newPointEditComponent = null;
     document.removeEventListener('keydown', this.#escKeyDownHandler);
@@ -227,18 +282,18 @@ export default class BoardPresenter {
 
       this.#newPointEditComponent.updateElement({
         isSaving: true,
-        isDisabled: true
+        isDisabled: true,
       });
       await this.#pointsModel.createPoint(point);
       this.#handleCreatorClose();
       this.rerender();
-      this.#rerenderInfo(this.points);
+      this.#rerenderInfo(this.#sortedPoints);
     } catch (e) {
       this.#newPointEditComponent.shake(
         this.#newPointEditComponent.updateElement({
           isSaving: false,
-          isDisabled: false
-        })
+          isDisabled: false,
+        }),
       );
     }
 
@@ -253,7 +308,7 @@ export default class BoardPresenter {
       pointPresenter.setIsSaving(true);
       await this.#pointsModel.updatePointServer(updatedPoint);
       this.rerender();
-      this.#rerenderInfo(this.points);
+      this.#rerenderInfo(this.#sortedPoints);
     } catch (e) {
       pointPresenter.setAborting();
     }

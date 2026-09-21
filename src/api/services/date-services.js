@@ -1,7 +1,9 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import utc from 'dayjs/plugin/utc';
 
 dayjs.extend(duration);
+dayjs.extend(utc);
 
 const FORM_DATE_FORMAT = 'DD/MM/YY HH:mm';
 const TIME_FORMAT = 'HH:mm';
@@ -14,16 +16,12 @@ export default class DateSevices {
   }
 
   getDate(date) {
-    return dayjs(date).format(DATE_FORMAT);
+    return dayjs(date).utc().format(DATE_FORMAT);
   }
 
   getInfoDate(dates) {
-    const start = dayjs(dates.start);
     const end = dayjs(dates.end);
-
-    if (start.isSame(end, 'month')) {
-      return `${start.date()} &mdash; ${end.format(INFO_FORMAT)}`;
-    }
+    const start = dayjs(dates.start);
 
     return `${start.format(INFO_FORMAT)} &mdash; ${end.format(INFO_FORMAT)}`;
   }
@@ -39,8 +37,11 @@ export default class DateSevices {
   getDuration(start, end) {
     const totalMinutes = dayjs(end).diff(dayjs(start));
     const durationObj = dayjs.duration(totalMinutes);
-    const hours = Math.floor(durationObj.as('hour'));
+    const days = Math.floor(durationObj.as('days'));
+    if (days > 0) {
+      return `${days < 10 ? `${String(days).padStart(2, '0')}D` : `${days}D`} ${String(durationObj.$d.hours).padStart(2, '0')}H ${String(durationObj.$d.minutes).padStart(2, '0')}M`;
+    }
 
-    return `${hours >= 1 ? `${String(hours).padStart(2, '0')}H` : ''} ${String(durationObj.$d.minutes).padStart(2, '0')}M`;
+    return `${durationObj.$d.hours >= 1 ? `${String(durationObj.$d.hours).padStart(2, '0')}H` : ''} ${String(durationObj.$d.minutes).padStart(2, '0')}M`;
   }
 }

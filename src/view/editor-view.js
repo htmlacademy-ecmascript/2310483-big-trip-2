@@ -2,7 +2,7 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import DateServices from '../api/services/date-services.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
-import { PRICE_INPUT_REGEXP } from '../api/constants.js';
+import { EMPTY_DESTINATION, PRICE_INPUT_REGEXP } from '../api/constants.js';
 
 const DateFormat = {
   FLATPICKR: 'd/m/y H:i'
@@ -32,8 +32,8 @@ const createPointEditorTemplate = (data) => {
   const {getFormDate} = new DateServices();
   const currentType = type ?? 'flight';
   const eventTypes = offersData.map((item) => item.type);
-  const offersList = offersData.find((item) => item.type === type).offers;
-  const currentDestination = destinations.find((item) => item.id === destinationId);
+  const offersList = offersData.find((item) => item.type === type).offers ?? [];
+  const currentDestination = destinations.find((item) => item.id === destinationId) ?? EMPTY_DESTINATION;
 
   return `
     <li class="trip-events__item">
@@ -152,7 +152,7 @@ const createPointEditorTemplate = (data) => {
             `}
         </header>
         <section class="event__details">
-          ${offersList && `<section class="event__section  event__section--offers">
+          ${offersList.length > 0 ? `<section class="event__section  event__section--offers">
               <h3 class="event__section-title  event__section-title--offers">Offers</h3>
               <div class="event__available-offers">
                 ${(offersList.map((offerOption) => `<div class="event__offer-selector">
@@ -171,15 +171,15 @@ const createPointEditorTemplate = (data) => {
                       </label>
                   </div>`))}
               </div>
-            </section>`}
-          ${currentDestination ? `<section class="event__section  event__section--destination">
+            </section>` : ''}
+          ${currentDestination.description.length > 0 ? `<section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
             <p class="event__destination-description">${currentDestination.description}</p>
-            <div class="event__photos-container">
-            <div class="event__photos-tape">
-              ${currentDestination.pictures.map((photo) => `<img class="event__photo" src="${photo.src}" alt="${photo.alt}">`).join('')}
-            </div>
-            </div>
+            ${currentDestination.pictures.length > 0 && `<div class="event__photos-container">
+              <div class="event__photos-tape">
+                ${currentDestination.pictures.map((photo) => `<img class="event__photo" src="${photo.src}" alt="${photo.alt}">`).join('')}
+              </div>
+            </div>`}
           </section>` : ''}
         </section>
       </form>
@@ -259,10 +259,12 @@ export default class PointEditorView extends AbstractStatefulView {
   #handlerDestinationChange() {
     const input = this.element.querySelector('.event__input--destination');
     input.addEventListener('change', (evt) => {
-      const destination = this._state.referenceData.destinations.find(({name}) => name === evt.target.value);
+      const destination = this._state.referenceData.destinations.find(({name}) => name === evt.target.value) ?? null;
       if (!destination) {
         input.setCustomValidity('Use destionation from the list!');
         input.reportValidity();
+        this._state.point.destinationId = null;
+        this.updateElement({...this._state});
         return;
       }
 
@@ -307,9 +309,6 @@ export default class PointEditorView extends AbstractStatefulView {
       defaultDate: point.dateFrom,
       onChange: ([userDate]) => {
         this._state.point.dateFrom = userDate;
-        if (userDate.getTime() > new Date(point.dateTo).getTime()) {
-          this.updateElement({...this._state, point: {...point, dateTo: userDate}});
-        }
       },
     });
 
@@ -346,10 +345,3 @@ export default class PointEditorView extends AbstractStatefulView {
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onReset);
   }
 }
-
-/* if (userDate.getTime() > new Date(this._state.point.dateTo).getTime()) {
-          const additionalTime = dayjs(this._state.point.dateFrom).diff(dayjs(this._state.point.dateTo), 'millisecond');
-          this._state.point.dateTo = dayjs(this._state.point.dateFrom).add(additionalTime, 'millisecond').toISOString();
-          this.updateElement({...this._state});
-        } */
-

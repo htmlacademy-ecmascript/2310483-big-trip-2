@@ -7,20 +7,14 @@ export default class InfoPresenter {
   #container = null;
   #destinations = null;
   #offersData = null;
-  #points = null;
-  #pointsModel = null;
 
-  constructor({ container, pointsModel }) {
+  constructor({ container }) {
     this.#container = container;
-    this.#pointsModel = pointsModel;
   }
 
-  init() {
-    this.#destinations = this.#pointsModel.destinations;
-    this.#offersData = this.#pointsModel.offersData;
-    this.#points = this.#pointsModel.points;
-
-    this.rerenderInfo(this.#points);
+  init({destinations, offersData}) {
+    this.#destinations = destinations;
+    this.#offersData = offersData;
   }
 
   rerenderInfo = (points) => {
@@ -36,6 +30,9 @@ export default class InfoPresenter {
   };
 
   #renderInfo = (points) => {
+    if (points.length === 0) {
+      return;
+    }
     const viewData = this.#collectDataForInfoBlock(points);
     this.#infoComponent = new TripInfoView(viewData);
     render(this.#infoComponent, this.#container, RenderPosition.AFTERBEGIN);

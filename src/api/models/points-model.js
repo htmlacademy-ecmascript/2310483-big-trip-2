@@ -17,21 +17,15 @@ export default class PointsModel {
   }
 
   async init() {
-    try {
-      const [points, destinations, offers] = await Promise.all([
-        this.#tripApiService.getPoints(),
-        this.#tripApiService.getDestinations(),
-        this.#tripApiService.getOffers(),
-      ]);
+    const [points, destinations, offers] = await Promise.all([
+      this.#tripApiService.getPoints(),
+      this.#tripApiService.getDestinations(),
+      this.#tripApiService.getOffers(),
+    ]);
 
-      this.#points = this.#adaptPoints(points);
-      this.#destinations = this.#adaptDestinations(destinations);
-      this.#offersData = this.#adaptOffers(offers);
-    } catch (e) {
-      this.#points = [];
-      this.#destinations = [];
-      this.#offersData = new Map();
-    }
+    this.#points = this.#adaptPoints(points);
+    this.#destinations = this.#adaptDestinations(destinations);
+    this.#offersData = this.#adaptOffers(offers);
   }
 
   get points() {

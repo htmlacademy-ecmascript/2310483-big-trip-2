@@ -78,12 +78,19 @@ export const EVENT_TYPES = [
 export const EMPTY_POINT = {
   id: null,
   basePrice: '0',
-  dateFrom: new Date(),
+  dateFrom: null,
   dateTo: null,
   destinationId: null,
   isFavorite: false,
   offersIds: [],
   type: EVENT_TYPES[0],
+};
+
+export const EMPTY_DESTINATION = {
+  id: null,
+  name: '',
+  description: '',
+  pictures: [],
 };
 
 export const PRICE_INPUT_REGEXP = /^\d+$/;
