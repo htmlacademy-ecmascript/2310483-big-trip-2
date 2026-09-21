@@ -309,9 +309,6 @@ export default class PointEditorView extends AbstractStatefulView {
       defaultDate: point.dateFrom,
       onChange: ([userDate]) => {
         this._state.point.dateFrom = userDate;
-        if (userDate.getTime() > new Date(point.dateTo).getTime()) {
-          this.updateElement({...this._state, point: {...point, dateTo: userDate}});
-        }
       },
     });
 

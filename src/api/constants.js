@@ -78,7 +78,7 @@ export const EVENT_TYPES = [
 export const EMPTY_POINT = {
   id: null,
   basePrice: '0',
-  dateFrom: new Date(),
+  dateFrom: null,
   dateTo: null,
   destinationId: null,
   isFavorite: false,
