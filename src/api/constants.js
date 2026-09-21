@@ -86,4 +86,11 @@ export const EMPTY_POINT = {
   type: EVENT_TYPES[0],
 };
 
+export const EMPTY_DESTINATION = {
+  id: null,
+  name: '',
+  description: '',
+  pictures: [],
+};
+
 export const PRICE_INPUT_REGEXP = /^\d+$/;
