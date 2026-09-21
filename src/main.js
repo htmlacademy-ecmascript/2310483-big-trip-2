@@ -67,7 +67,7 @@ const filtersPresenter = new FiltersPresenter({
   } catch {
     remove(loadingComponent);
     render(failedLoadingComponent, containers.main);
-    newPointButton.setDisabled(true);
+    newPointButton.setDisable(true);
     render(newPointButton, containers.tripMain, RenderPosition.BEFOREEND);
 
     filtersPresenter.init();
