@@ -4,14 +4,12 @@ const createNewPointButtonTemplate = () =>
   '<button class="trip-main__event-add-btn  btn  btn--big  btn--yellow" type="button">New event</button>';
 
 export default class NewPointButtonView extends AbstractView {
-  #openEditorHandler = null;
 
   get template() {
     return createNewPointButtonTemplate();
   }
 
   setOpenEditorHandler = (callback) => {
-    this.#openEditorHandler = callback;
-    this.element.addEventListener('click', this.#openEditorHandler);
+    this.element.addEventListener('click', callback);
   };
 }

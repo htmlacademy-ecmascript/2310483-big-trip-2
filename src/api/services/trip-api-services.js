@@ -7,12 +7,17 @@ const METHOD = {
   DELETE: 'DELETE',
 };
 
+const ApiPaths = {
+  POINTS: 'points',
+  DESTINATIONS: 'destinations',
+  OFFERS: 'offers',
+};
 
 export default class TripApiServices extends ApiService {
 
   async getPoints() {
     const response = await this._load({
-      url: 'points'
+      url: ApiPaths.POINTS
     });
 
     return ApiService.parseResponse(response);
@@ -20,7 +25,7 @@ export default class TripApiServices extends ApiService {
 
   async getOffers() {
     const response = await this._load({
-      url: 'offers'
+      url: ApiPaths.OFFERS
     });
 
     return ApiService.parseResponse(response);
@@ -28,7 +33,7 @@ export default class TripApiServices extends ApiService {
 
   async getDestinations() {
     const response = await this._load({
-      url: 'destinations'
+      url: ApiPaths.DESTINATIONS
     });
 
     return ApiService.parseResponse(response);
@@ -38,7 +43,7 @@ export default class TripApiServices extends ApiService {
     const headers = new Headers();
     headers.append('Content-Type', 'application/json');
     const response = await this._load({
-      url: `points/${point.id}`,
+      url: `${ApiPaths.POINTS}/${point.id}`,
       method: METHOD.PUT,
       body: JSON.stringify(point),
       headers
@@ -49,7 +54,7 @@ export default class TripApiServices extends ApiService {
 
   async deletePoint(pointId) {
     await this._load({
-      url: `points/${pointId}`,
+      url: `${ApiPaths.POINTS}/${pointId}`,
       method: METHOD.DELETE
     });
   }
@@ -58,7 +63,7 @@ export default class TripApiServices extends ApiService {
     const headers = new Headers();
     headers.append('Content-Type', 'application/json');
     const response = await this._load({
-      url: 'points',
+      url: ApiPaths.POINTS,
       method: METHOD.POST,
       body: JSON.stringify(point),
       headers

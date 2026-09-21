@@ -346,10 +346,3 @@ export default class PointEditorView extends AbstractStatefulView {
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onReset);
   }
 }
-
-/* if (userDate.getTime() > new Date(this._state.point.dateTo).getTime()) {
-          const additionalTime = dayjs(this._state.point.dateFrom).diff(dayjs(this._state.point.dateTo), 'millisecond');
-          this._state.point.dateTo = dayjs(this._state.point.dateFrom).add(additionalTime, 'millisecond').toISOString();
-          this.updateElement({...this._state});
-        } */
-

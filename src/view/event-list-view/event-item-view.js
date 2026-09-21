@@ -67,10 +67,6 @@ export default class EventItemView extends AbstractView {
     return createEventItemTemplate({point: this.#point, destinations: this.#destinations, offers: this.#offers});
   }
 
-  get point() {
-    return this.#point;
-  }
-
   setRollupClickHandler(callback) {
     this.element.querySelector('.event__rollup-btn').addEventListener('click', callback);
   }
