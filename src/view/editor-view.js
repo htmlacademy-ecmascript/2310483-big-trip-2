@@ -118,14 +118,14 @@ const createPointEditorTemplate = (data) => {
                 type="submit"
                 ${isDisabled ? 'disabled' : ''}
               >
-                ${isSaving === true ? 'Saving...' : 'Save'}
+                ${isSaving ? 'Saving...' : 'Save'}
               </button>
               <button
                 class="event__reset-btn"
                 type="reset"
                 ${isDisabled ? 'disabled' : ''}
               >
-                ${isDeleting === true ? 'Deleting...' : 'Delete'}
+                ${isDeleting ? 'Deleting...' : 'Delete'}
               </button>
               <button
                 class="event__rollup-btn"
@@ -140,7 +140,7 @@ const createPointEditorTemplate = (data) => {
                 type="submit"
                 ${isDisabled ? 'disabled' : ''}
               >
-                ${isSaving === true ? 'Saving...' : 'Save'}
+                ${isSaving ? 'Saving...' : 'Save'}
               </button>
               <button
                 class="event__reset-btn"
