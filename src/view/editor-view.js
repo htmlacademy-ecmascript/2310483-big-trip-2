@@ -1,5 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import DateServices from '../api/services/date-services.js';
+import DateService from '../api/services/date-service.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import { EMPTY_DESTINATION, PRICE_INPUT_REGEXP } from '../api/constants.js';
@@ -29,7 +29,7 @@ const createPointEditorTemplate = (data) => {
     offersIds
   } = point;
 
-  const {getFormDate} = new DateServices();
+  const {getFormDate} = new DateService();
   const currentType = type ?? 'flight';
   const eventTypes = offersData.map((item) => item.type);
   const offersList = offersData.find((item) => item.type === type).offers ?? [];
@@ -191,19 +191,19 @@ export default class PointEditorView extends AbstractStatefulView {
   #dateFromPicker = null;
   #dateToPicker = null;
 
-  #onReset = null;
-  #onRollupClick = null;
-  #onSubmit = null;
+  #resetHandler = null;
+  #rollupHandler = null;
+  #submitHandler = null;
 
 
   constructor(data) {
     super();
     this.#parseDataToState(data);
     this.#setDatepickers();
-    this.#handlerTypeChange();
-    this.#handlerDestinationChange();
-    this.#handleOffersChange();
-    this.#handlePriceChange();
+    this.#typeChangeHandler();
+    this.#destinationChangeHandler();
+    this.#offersChangeHandler();
+    this.#priceChangeHandler();
   }
 
   get template() {
@@ -214,88 +214,23 @@ export default class PointEditorView extends AbstractStatefulView {
     return this._state.point;
   }
 
-  #parseDataToState(data) {
-    this._state = {
-      point: {...data.point},
-      referenceData: data.referenceData,
-      isSaving: false,
-      isDeleting: false,
-      isDisabled: false
-    };
+  setRollupClickHandler(callback) {
+    this.#rollupHandler = () => callback();
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollupHandler);
   }
 
-  removeElement() {
-    this.#dateFromPicker?.destroy();
-    this.#dateToPicker?.destroy();
-    this.#dateFromPicker = null;
-    this.#dateToPicker = null;
-    super.removeElement();
+  setSubmitClickHandler(callback) {
+    this.#submitHandler = (evt) => callback(evt);
+    this.element.querySelector('.event__save-btn').addEventListener('click', this.#submitHandler);
   }
 
-  _restoreHandlers() {
-    this.#setDatepickers();
-    this.#handlerTypeChange();
-    this.#handlerDestinationChange();
-    this.#handleOffersChange();
-    this.#handlePriceChange();
-
-    this.setResetClickHandler(this.#onReset);
+  setResetClickHandler(callback) {
     if (this._state.point.id) {
-      this.setRollupClickHandler(this.#onRollupClick);
+      this.#resetHandler = () => callback(this._state.point.id);
+    } else {
+      this.#resetHandler = () => callback();
     }
-    this.setSubmitClickHandler(this.#onSubmit);
-  }
-
-  #handlerTypeChange() {
-    this.element.querySelector('.event__type-group').addEventListener('change', (evt) => {
-      if (!evt.target.matches('.event__type-input')) {
-        return;
-      }
-      this._state.point = {...this._state.point, type: evt.target.value, offersIds: []};
-      this.updateElement({...this._state});
-    });
-  }
-
-  #handlerDestinationChange() {
-    const input = this.element.querySelector('.event__input--destination');
-    input.addEventListener('change', (evt) => {
-      const destination = this._state.referenceData.destinations.find(({name}) => name === evt.target.value) ?? null;
-      if (!destination) {
-        input.setCustomValidity('Use destionation from the list!');
-        input.reportValidity();
-        this._state.point.destinationId = null;
-        this.updateElement({...this._state});
-        return;
-      }
-
-      this._state.point.destinationId = destination.id;
-      this.updateElement({...this._state});
-    });
-  }
-
-  #handleOffersChange() {
-    const updatedOffersIds = [...this._state.point.offersIds];
-    this.element.querySelectorAll('.event__offer-checkbox').forEach((checkbox) => checkbox.addEventListener('change', (evt) => {
-      if (evt.target.checked) {
-        updatedOffersIds.push(evt.target.id);
-      } else {
-        updatedOffersIds.splice(updatedOffersIds.indexOf(evt.target.id), 1);
-      }
-      this._state.point.offersIds = updatedOffersIds;
-    }));
-  }
-
-  #handlePriceChange() {
-    const input = this.element.querySelector('.event__input--price');
-
-    input.addEventListener('change', (evt) => {
-      if (PRICE_INPUT_REGEXP.test(evt.target.value) === false) {
-        input.setCustomValidity('Use only numbers!');
-        input.reportValidity();
-        return;
-      }
-      this._state.point.basePrice = Number(evt.target.value);
-    });
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#resetHandler);
   }
 
   #setDatepickers() {
@@ -326,22 +261,87 @@ export default class PointEditorView extends AbstractStatefulView {
     });
   }
 
-  setRollupClickHandler(callback) {
-    this.#onRollupClick = () => callback();
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#onRollupClick);
+  removeElement() {
+    this.#dateFromPicker?.destroy();
+    this.#dateToPicker?.destroy();
+    this.#dateFromPicker = null;
+    this.#dateToPicker = null;
+    super.removeElement();
   }
 
-  setSubmitClickHandler(callback) {
-    this.#onSubmit = (evt) => callback(evt);
-    this.element.querySelector('.event__save-btn').addEventListener('click', this.#onSubmit);
-  }
+  _restoreHandlers() {
+    this.#setDatepickers();
+    this.#typeChangeHandler();
+    this.#destinationChangeHandler();
+    this.#offersChangeHandler();
+    this.#priceChangeHandler();
 
-  setResetClickHandler(callback) {
+    this.setResetClickHandler(this.#resetHandler);
     if (this._state.point.id) {
-      this.#onReset = () => callback(this._state.point.id);
-    } else {
-      this.#onReset = () => callback();
+      this.setRollupClickHandler(this.#rollupHandler);
     }
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onReset);
+    this.setSubmitClickHandler(this.#submitHandler);
+  }
+
+  #parseDataToState(data) {
+    this._state = {
+      point: {...data.point},
+      referenceData: data.referenceData,
+      isSaving: false,
+      isDeleting: false,
+      isDisabled: false
+    };
+  }
+
+  #typeChangeHandler() {
+    this.element.querySelector('.event__type-group').addEventListener('change', (evt) => {
+      if (!evt.target.matches('.event__type-input')) {
+        return;
+      }
+      this._state.point = {...this._state.point, type: evt.target.value, offersIds: []};
+      this.updateElement({...this._state});
+    });
+  }
+
+  #destinationChangeHandler() {
+    const input = this.element.querySelector('.event__input--destination');
+    input.addEventListener('change', (evt) => {
+      const destination = this._state.referenceData.destinations.find(({name}) => name === evt.target.value) ?? null;
+      if (!destination) {
+        input.setCustomValidity('Use destination from the list!');
+        input.reportValidity();
+        this._state.point.destinationId = null;
+        this.updateElement({...this._state});
+        return;
+      }
+
+      this._state.point.destinationId = destination.id;
+      this.updateElement({...this._state});
+    });
+  }
+
+  #offersChangeHandler() {
+    const updatedOffersIds = [...this._state.point.offersIds];
+    this.element.querySelectorAll('.event__offer-checkbox').forEach((checkbox) => checkbox.addEventListener('change', (evt) => {
+      if (evt.target.checked) {
+        updatedOffersIds.push(evt.target.id);
+      } else {
+        updatedOffersIds.splice(updatedOffersIds.indexOf(evt.target.id), 1);
+      }
+      this._state.point.offersIds = updatedOffersIds;
+    }));
+  }
+
+  #priceChangeHandler() {
+    const input = this.element.querySelector('.event__input--price');
+
+    input.addEventListener('change', (evt) => {
+      if (PRICE_INPUT_REGEXP.test(evt.target.value) === false) {
+        input.setCustomValidity('Use only numbers!');
+        input.reportValidity();
+        return;
+      }
+      this._state.point.basePrice = Number(evt.target.value);
+    });
   }
 }

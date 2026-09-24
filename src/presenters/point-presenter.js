@@ -10,19 +10,19 @@ export default class PointPresenter {
   #offersData = null;
   #point = null;
   #editorComponent = null;
-  #onDataUpdate = null;
-  #onModeChange = null;
-  #onPointDelete = null;
+  #dataUpdateHandler = null;
+  #editorModeHandler = null;
+  #pointDeleteHandler = null;
   #isEditMode = false;
 
-  constructor({container, point, destinations, offersData, onDataUpdate, onModeChange, onPointDelete}) {
+  constructor({container, point, destinations, offersData, dataUpdateHandler, editorModeHandler, pointDeleteHandler}) {
     this.#container = container;
     this.#point = point;
     this.#destinations = destinations;
     this.#offersData = offersData;
-    this.#onDataUpdate = onDataUpdate;
-    this.#onModeChange = onModeChange;
-    this.#onPointDelete = onPointDelete;
+    this.#dataUpdateHandler = dataUpdateHandler;
+    this.#editorModeHandler = editorModeHandler;
+    this.#pointDeleteHandler = pointDeleteHandler;
   }
 
   init() {
@@ -43,11 +43,11 @@ export default class PointPresenter {
     });
     render(this.#pointComponent, this.#container);
 
-    this.#pointComponent.setRollupClickHandler(this.#handleEditOpen);
-    this.#pointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
-    this.#editorComponent.setRollupClickHandler(this.#handleEditClose);
-    this.#editorComponent.setSubmitClickHandler(this.#handleSubmit);
-    this.#editorComponent.setResetClickHandler(this.#handleDelete);
+    this.#pointComponent.setRollupClickHandler(this.#editorOpenHandler);
+    this.#pointComponent.setFavoriteClickHandler(this.#favoriteClickHandler);
+    this.#editorComponent.setRollupClickHandler(this.#editorCloseHandler);
+    this.#editorComponent.setSubmitClickHandler(this.#submitHandler);
+    this.#editorComponent.setResetClickHandler(this.#pointDeleteHandler);
   }
 
   destroy() {
@@ -81,11 +81,11 @@ export default class PointPresenter {
       }
     });
 
-    this.#pointComponent.setRollupClickHandler(this.#handleEditOpen);
-    this.#pointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
-    this.#editorComponent.setRollupClickHandler(this.#handleEditClose);
-    this.#editorComponent.setSubmitClickHandler(this.#handleSubmit);
-    this.#editorComponent.setResetClickHandler(this.#handleDelete);
+    this.#pointComponent.setRollupClickHandler(this.#editorOpenHandler);
+    this.#pointComponent.setFavoriteClickHandler(this.#favoriteClickHandler);
+    this.#editorComponent.setRollupClickHandler(this.#editorCloseHandler);
+    this.#editorComponent.setSubmitClickHandler(this.#submitHandler);
+    this.#editorComponent.setResetClickHandler(this.#pointDeleteHandler);
 
     if (wasEditMode) {
       replace(this.#editorComponent, prevEditorComponent);
@@ -139,24 +139,20 @@ export default class PointPresenter {
     this.#isEditMode = false;
   }
 
-  #handleEditOpen = () => {
-    this.#onModeChange();
+  #editorOpenHandler = () => {
+    this.#editorModeHandler();
     this.#replacePointToForm();
   };
 
-  #handleEditClose = () => {
+  #editorCloseHandler = () => {
     this.#replaceFormToPoint();
   };
 
-  #handleSubmit = (evt) => {
+  #submitHandler = (evt) => {
     evt.preventDefault();
     const updatedData = {...this.#editorComponent.point};
     this.#editorComponent.updateElement(updatedData);
-    this.#onDataUpdate(updatedData);
-  };
-
-  #handleDelete = (id) => {
-    this.#onPointDelete(id);
+    this.#dataUpdateHandler(updatedData);
   };
 
   #escKeyDownHandler = (evt) => {
@@ -166,8 +162,8 @@ export default class PointPresenter {
     }
   };
 
-  #handleFavoriteClick = () => {
-    this.#onDataUpdate(
+  #favoriteClickHandler = () => {
+    this.#dataUpdateHandler(
       {
         ...this.#point,
         isFavorite: !this.#point.isFavorite

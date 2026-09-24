@@ -4,21 +4,23 @@ import PointsModel from './api/models/points-model.js';
 import FiltersModel from './api/models/filters-model.js';
 import NewPointButtonView from './view/new-point-button-view.js';
 import { render, remove, RenderPosition } from './framework/render.js';
-import TripApiServices from './api/services/trip-api-services.js';
+import TripApiService from './api/services/trip-api-service.js';
 import InfoPresenter from './presenters/info-presenter.js';
 import LoadingView from './view/loading-view.js';
 import FailedLoadingView from './view/failed-loading-view.js';
 
-const authToken = `Basic ${self.crypto.randomUUID()}`;
 const BASE_URL = 'https://22.objects.htmlacademy.pro/big-trip';
+
+const authToken = `Basic ${self.crypto.randomUUID()}`;
 
 const containers = {
   filters: document.querySelector('.trip-controls__filters'),
   main: document.querySelector('.trip-events'),
   tripMain: document.querySelector('.trip-main'),
 };
-const tripApiServices = new TripApiServices(BASE_URL, authToken);
-const pointsModel = new PointsModel(tripApiServices);
+
+const tripApiService = new TripApiService(BASE_URL, authToken);
+const pointsModel = new PointsModel(tripApiService);
 const filtersModel = new FiltersModel();
 const tripInfoPresenter = new InfoPresenter({
   container: containers.tripMain,
@@ -32,10 +34,10 @@ const boardPresenter = new BoardPresenter({
   pointsModel,
   filtersModel,
   rerenderInfo: tripInfoPresenter.rerenderInfo,
-  onNewButtonDisable: newPointButton.setDisable,
+  newPointDisableHandler: newPointButton.setDisable,
 });
 
-newPointButton.setOpenEditorHandler(() => boardPresenter.handleCreatorOpen());
+newPointButton.setCreatorOpenHandler(() => boardPresenter.creatorOpenHandler());
 
 const loadingComponent = new LoadingView();
 const failedLoadingComponent = new FailedLoadingView();
@@ -44,7 +46,7 @@ const filtersPresenter = new FiltersPresenter({
   container: containers.filters,
   pointsModel,
   filtersModel,
-  onFilterChange: () => boardPresenter.handleFilterTypeChange(),
+  filterChangeHandler: () => boardPresenter.filterTypeChangeHandler(),
 });
 
 (async () => {
@@ -56,7 +58,7 @@ const filtersPresenter = new FiltersPresenter({
     remove(loadingComponent);
 
     render(newPointButton, containers.tripMain, RenderPosition.BEFOREEND);
-    boardPresenter.setOnFilterReset(filtersPresenter.resetFilters);
+    boardPresenter.setfilterResetHandler(filtersPresenter.resetFilters);
     tripInfoPresenter.init({
       destinations: pointsModel.destinations,
       offersData: pointsModel.offersData,

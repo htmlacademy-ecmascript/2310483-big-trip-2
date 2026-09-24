@@ -1,23 +1,22 @@
 import ApiService from '../../framework/api-service.js';
 
-const METHOD = {
-  GET: 'GET',
+const Method = {
   POST: 'POST',
   PUT: 'PUT',
   DELETE: 'DELETE',
 };
 
-const ApiPaths = {
+const ApiPath = {
   POINTS: 'points',
   DESTINATIONS: 'destinations',
   OFFERS: 'offers',
 };
 
-export default class TripApiServices extends ApiService {
+export default class TripApiService extends ApiService {
 
   async getPoints() {
     const response = await this._load({
-      url: ApiPaths.POINTS
+      url: ApiPath.POINTS,
     });
 
     return ApiService.parseResponse(response);
@@ -25,7 +24,7 @@ export default class TripApiServices extends ApiService {
 
   async getOffers() {
     const response = await this._load({
-      url: ApiPaths.OFFERS
+      url: ApiPath.OFFERS
     });
 
     return ApiService.parseResponse(response);
@@ -33,7 +32,7 @@ export default class TripApiServices extends ApiService {
 
   async getDestinations() {
     const response = await this._load({
-      url: ApiPaths.DESTINATIONS
+      url: ApiPath.DESTINATIONS
     });
 
     return ApiService.parseResponse(response);
@@ -43,8 +42,8 @@ export default class TripApiServices extends ApiService {
     const headers = new Headers();
     headers.append('Content-Type', 'application/json');
     const response = await this._load({
-      url: `${ApiPaths.POINTS}/${point.id}`,
-      method: METHOD.PUT,
+      url: `${ApiPath.POINTS}/${point.id}`,
+      method: Method.PUT,
       body: JSON.stringify(point),
       headers
     });
@@ -54,8 +53,8 @@ export default class TripApiServices extends ApiService {
 
   async deletePoint(pointId) {
     await this._load({
-      url: `${ApiPaths.POINTS}/${pointId}`,
-      method: METHOD.DELETE
+      url: `${ApiPath.POINTS}/${pointId}`,
+      method: Method.DELETE
     });
   }
 
@@ -63,8 +62,8 @@ export default class TripApiServices extends ApiService {
     const headers = new Headers();
     headers.append('Content-Type', 'application/json');
     const response = await this._load({
-      url: ApiPaths.POINTS,
-      method: METHOD.POST,
+      url: ApiPath.POINTS,
+      method: Method.POST,
       body: JSON.stringify(point),
       headers
     });

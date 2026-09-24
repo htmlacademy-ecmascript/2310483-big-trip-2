@@ -1,10 +1,12 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import DateService from '../api/services/date-services.js';
+import DateService from '../api/services/date-service.js';
+
+const MAX_CITIES_LENGTH = 3;
 
 const createTripInfoTemplate = ({ cities, dates, price }) => {
   const { getInfoDate, isOneDayTrip } = new DateService();
   const getCitiesRow = () => {
-    if (cities.length > 3) {
+    if (cities.length > MAX_CITIES_LENGTH) {
       return `${cities[0]} &mdash; ... &mdash; ${cities[cities.length - 1]}`;
     }
 

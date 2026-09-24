@@ -22,13 +22,13 @@ const createSortTemplate = ({sortOptions, currentSortType}) => `
 
 export default class SortView extends AbstractView {
   #sortOptions = null;
-  #handleSortTypeChange = null;
+  #sortTypeChangeHandler = null;
   #currentSortType = null;
 
-  constructor({sortOptions, onSortTypeChange, currentSortType}) {
+  constructor({sortOptions, sortTypeChangeHandler, currentSortType}) {
     super();
     this.#sortOptions = sortOptions;
-    this.#handleSortTypeChange = onSortTypeChange;
+    this.#sortTypeChangeHandler = sortTypeChangeHandler;
     this.#currentSortType = currentSortType;
 
     this.element.querySelectorAll('.trip-sort__input')
@@ -38,9 +38,4 @@ export default class SortView extends AbstractView {
   get template() {
     return createSortTemplate({sortOptions: this.#sortOptions, currentSortType: this.#currentSortType});
   }
-
-  #sortTypeChangeHandler = (evt) => {
-    evt.preventDefault();
-    this.#handleSortTypeChange(evt.target.value);
-  };
 }

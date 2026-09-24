@@ -16,18 +16,6 @@ export default class PointsModel {
     this.#tripApiService = tripApiService;
   }
 
-  async init() {
-    const [points, destinations, offers] = await Promise.all([
-      this.#tripApiService.getPoints(),
-      this.#tripApiService.getDestinations(),
-      this.#tripApiService.getOffers(),
-    ]);
-
-    this.#points = this.#adaptPoints(points);
-    this.#destinations = this.#adaptDestinations(destinations);
-    this.#offersData = this.#adaptOffers(offers);
-  }
-
   get points() {
     return this.#points;
   }
@@ -40,18 +28,30 @@ export default class PointsModel {
     return this.#offersData;
   }
 
-  #updatePointsClient(updatedPoint, action = 'UPDATE') {
-    const pointIndex = action === 'UPDATE' ? this.#points.findIndex((point) => point.id === updatedPoint.id) : null;
+  async init() {
+    const [points, destinations, offers] = await Promise.all([
+      this.#tripApiService.getPoints(),
+      this.#tripApiService.getDestinations(),
+      this.#tripApiService.getOffers(),
+    ]);
+
+    this.#points = this.#adaptPoints(points);
+    this.#destinations = this.#adaptDestinations(destinations);
+    this.#offersData = this.#adaptOffers(offers);
+  }
+
+  #updatePointsClient(updatedPoint, action = UpdateActions.UPDATE) {
+    const pointIndex = action === UpdateActions.UPDATE ? this.#points.findIndex((point) => point.id === updatedPoint.id) : null;
     switch (action) {
-      case 'DELETE':
+      case UpdateActions.DELETE:
         this.#points = this.#points.filter((point) => point.id !== updatedPoint.id);
         this.#points.sort(SortCb['sort-day']);
         break;
-      case 'UPDATE':
+      case UpdateActions.UPDATE:
         this.#points[pointIndex] = updatedPoint;
         this.#points.sort(SortCb['sort-day']);
         break;
-      case 'CREATE':
+      case UpdateActions.CREATE:
         this.#points = this.#points.concat(updatedPoint);
         this.#points.sort(SortCb['sort-day']);
         break;
@@ -67,7 +67,7 @@ export default class PointsModel {
   }
 
   async createPoint(point) {
-    const pointData = this.#adaptNewPointToRequest(point);
+    const pointData = this.#adaptPointToRequest(point);
 
     const response = await this.#tripApiService.createPoint(
       pointData
@@ -100,26 +100,24 @@ export default class PointsModel {
     type: point['type'],
   });
 
-  #adaptPointToRequest = (point) => ({
-    'id': point['id'],
-    'base_price': point['basePrice'],
-    'date_from': point['dateFrom'],
-    'date_to': point['dateTo'],
-    'destination': point['destinationId'],
-    'is_favorite': point['isFavorite'],
-    'offers': point['offersIds'],
-    'type': point['type'],
-  });
+  #adaptPointToRequest = (point) => {
+    const result = {
+      'id': point['id'],
+      'base_price': point['basePrice'],
+      'date_from': point['dateFrom'],
+      'date_to': point['dateTo'],
+      'destination': point['destinationId'],
+      'is_favorite': point['isFavorite'],
+      'offers': point['offersIds'],
+      'type': point['type'],
+    };
 
-  #adaptNewPointToRequest = (point) => ({
-    'base_price': point['basePrice'],
-    'date_from': point['dateFrom'],
-    'date_to': point['dateTo'],
-    'destination': point['destinationId'],
-    'is_favorite': point['isFavorite'],
-    'offers': point['offersIds'],
-    'type': point['type'],
-  });
+    if (point.id) {
+      result['id'] = point['id'];
+    }
+
+    return result;
+  };
 
   #adaptDestinations = (destinations) =>
     destinations.map((destination) => ({
@@ -128,7 +126,7 @@ export default class PointsModel {
       description: destination['description'],
       pictures: destination['pictures'].map((picture) => ({
         src: picture['src'],
-        description: picture['desctiption'],
+        description: picture['description'],
       })),
     }));
 

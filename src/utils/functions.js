@@ -1,8 +1,6 @@
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 
-dayjs.extend(isBetween);
-
 export const FiltersCb = {
   'everything': () => true,
   'future': (point) => dayjs(point.dateFrom).isAfter(dayjs()),
@@ -15,6 +13,8 @@ export const SortCb = {
   'sort-time': (a, b) => dayjs(a.dateFrom).diff(dayjs(a.dateTo)) - dayjs(b.dateFrom).diff(dayjs(b.dateTo)),
   'sort-price': (a, b) => b.basePrice - a.basePrice
 };
+
+dayjs.extend(isBetween);
 
 export const getSelectedOffersIds = (acc, point) => [...acc, ...point.offersIds];
 
