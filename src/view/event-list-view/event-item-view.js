@@ -1,10 +1,10 @@
 import AbstractView from '../../framework/view/abstract-view.js';
-import DateServices from '../../api/services/date-services.js';
+import DateService from '../../api/services/date-service.js';
 
 const createEventItemTemplate = ({point, destinations, offers}) => {
   const {type, destinationId, dateFrom, dateTo, basePrice, offersIds, isFavorite} = point;
 
-  const {getDate, getTime, getDuration} = new DateServices();
+  const {getDate, getTime, getDuration} = new DateService();
   const selectedOffers = offers.filter((offer) => offersIds.includes(offer.id));
   const destination = destinations.find((item) => item.id === destinationId).name;
 

@@ -1,5 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import DateServices from '../api/services/date-services.js';
+import DateService from '../api/services/date-service.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import { EMPTY_DESTINATION, PRICE_INPUT_REGEXP } from '../api/constants.js';
@@ -29,7 +29,7 @@ const createPointEditorTemplate = (data) => {
     offersIds
   } = point;
 
-  const {getFormDate} = new DateServices();
+  const {getFormDate} = new DateService();
   const currentType = type ?? 'flight';
   const eventTypes = offersData.map((item) => item.type);
   const offersList = offersData.find((item) => item.type === type).offers ?? [];
@@ -261,7 +261,7 @@ export default class PointEditorView extends AbstractStatefulView {
     input.addEventListener('change', (evt) => {
       const destination = this._state.referenceData.destinations.find(({name}) => name === evt.target.value) ?? null;
       if (!destination) {
-        input.setCustomValidity('Use destionation from the list!');
+        input.setCustomValidity('Use destination from the list!');
         input.reportValidity();
         this._state.point.destinationId = null;
         this.updateElement({...this._state});

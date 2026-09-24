@@ -40,18 +40,18 @@ export default class PointsModel {
     return this.#offersData;
   }
 
-  #updatePointsClient(updatedPoint, action = 'UPDATE') {
-    const pointIndex = action === 'UPDATE' ? this.#points.findIndex((point) => point.id === updatedPoint.id) : null;
+  #updatePointsClient(updatedPoint, action = UpdateActions.UPDATE) {
+    const pointIndex = action === UpdateActions.UPDATE ? this.#points.findIndex((point) => point.id === updatedPoint.id) : null;
     switch (action) {
-      case 'DELETE':
+      case UpdateActions.DELETE:
         this.#points = this.#points.filter((point) => point.id !== updatedPoint.id);
         this.#points.sort(SortCb['sort-day']);
         break;
-      case 'UPDATE':
+      case UpdateActions.UPDATE:
         this.#points[pointIndex] = updatedPoint;
         this.#points.sort(SortCb['sort-day']);
         break;
-      case 'CREATE':
+      case UpdateActions.CREATE:
         this.#points = this.#points.concat(updatedPoint);
         this.#points.sort(SortCb['sort-day']);
         break;
@@ -128,7 +128,7 @@ export default class PointsModel {
       description: destination['description'],
       pictures: destination['pictures'].map((picture) => ({
         src: picture['src'],
-        description: picture['desctiption'],
+        description: picture['description'],
       })),
     }));
 

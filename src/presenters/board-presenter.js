@@ -13,7 +13,7 @@ import {
 import PointPresenter from './point-presenter.js';
 import { FiltersCb, SortCb } from '../utils/functions.js';
 
-const UiBlokerLimits = {
+const UiBlockerLimits = {
   LOWER_LIMIT: 100,
   UPPER_LIMIT: 2000,
 };
@@ -29,8 +29,8 @@ export default class BoardPresenter {
   #newPointEditComponent = null;
   #sortComponent = null;
   #uiBlocker = new UiBlocker({
-    lowerLimit: UiBlokerLimits.LOWER_LIMIT,
-    upperLimit: UiBlokerLimits.UPPER_LIMIT,
+    lowerLimit: UiBlockerLimits.LOWER_LIMIT,
+    upperLimit: UiBlockerLimits.UPPER_LIMIT,
   });
 
   #isCreatorMode = false;
@@ -133,7 +133,7 @@ export default class BoardPresenter {
     render(this.#emptyListComponent, this.#mainContainer);
   }
 
-  #destroyEmtpyList = () => {
+  #destroyEmptyList = () => {
     remove(this.#emptyListComponent);
     this.#emptyListComponent = null;
   };
@@ -165,7 +165,7 @@ export default class BoardPresenter {
       pointPresenter.destroy(),
     );
     this.#pointsPresenters.clear();
-    this.#destroyEmtpyList();
+    this.#destroyEmptyList();
   }
 
   setOnFilterReset(onFilterReset) {
@@ -226,7 +226,7 @@ export default class BoardPresenter {
     this.#isCreatorMode = true;
 
     if (this.#emptyListComponent) {
-      this.#destroyEmtpyList();
+      this.#destroyEmptyList();
     }
 
     this.#onNewPointDisable(true);
@@ -288,7 +288,7 @@ export default class BoardPresenter {
       this.#handleCreatorClose();
       this.rerender();
       this.#rerenderInfo(this.#sortedPoints);
-    } catch (e) {
+    } catch {
       this.#newPointEditComponent.shake(
         this.#newPointEditComponent.updateElement({
           isSaving: false,
@@ -309,7 +309,7 @@ export default class BoardPresenter {
       await this.#pointsModel.updatePointServer(updatedPoint);
       this.rerender();
       this.#rerenderInfo(this.#sortedPoints);
-    } catch (e) {
+    } catch {
       pointPresenter.setAborting();
     }
 
