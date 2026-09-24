@@ -214,14 +214,51 @@ export default class PointEditorView extends AbstractStatefulView {
     return this._state.point;
   }
 
-  #parseDataToState(data) {
-    this._state = {
-      point: {...data.point},
-      referenceData: data.referenceData,
-      isSaving: false,
-      isDeleting: false,
-      isDisabled: false
-    };
+  setRollupClickHandler(callback) {
+    this.#rollupHandler = () => callback();
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollupHandler);
+  }
+
+  setSubmitClickHandler(callback) {
+    this.#submitHandler = (evt) => callback(evt);
+    this.element.querySelector('.event__save-btn').addEventListener('click', this.#submitHandler);
+  }
+
+  setResetClickHandler(callback) {
+    if (this._state.point.id) {
+      this.#resetHandler = () => callback(this._state.point.id);
+    } else {
+      this.#resetHandler = () => callback();
+    }
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#resetHandler);
+  }
+
+  #setDatepickers() {
+    const {point} = this._state;
+    const startInput = this.element.querySelector(`#event-start-time-${point.id}`);
+    const endInput = this.element.querySelector(`#event-end-time-${point.id}`);
+
+    this.#dateFromPicker = flatpickr(startInput, {
+      enableTime: true,
+      dateFormat: DateFormat.FLATPICKR,
+      defaultDate: point.dateFrom,
+      onChange: ([userDate]) => {
+        this._state.point.dateFrom = userDate;
+      },
+    });
+
+    this.#dateToPicker = flatpickr(endInput, {
+      enableTime: true,
+      dateFormat: DateFormat.FLATPICKR,
+      defaultDate: point.dateTo,
+      minDate: point.dateFrom,
+      onChange: ([userDate]) => {
+        if (!userDate) {
+          return;
+        }
+        this._state.point.dateTo = userDate;
+      }
+    });
   }
 
   removeElement() {
@@ -244,6 +281,16 @@ export default class PointEditorView extends AbstractStatefulView {
       this.setRollupClickHandler(this.#rollupHandler);
     }
     this.setSubmitClickHandler(this.#submitHandler);
+  }
+
+  #parseDataToState(data) {
+    this._state = {
+      point: {...data.point},
+      referenceData: data.referenceData,
+      isSaving: false,
+      isDeleting: false,
+      isDisabled: false
+    };
   }
 
   #typeChangeHandler() {
@@ -296,52 +343,5 @@ export default class PointEditorView extends AbstractStatefulView {
       }
       this._state.point.basePrice = Number(evt.target.value);
     });
-  }
-
-  #setDatepickers() {
-    const {point} = this._state;
-    const startInput = this.element.querySelector(`#event-start-time-${point.id}`);
-    const endInput = this.element.querySelector(`#event-end-time-${point.id}`);
-
-    this.#dateFromPicker = flatpickr(startInput, {
-      enableTime: true,
-      dateFormat: DateFormat.FLATPICKR,
-      defaultDate: point.dateFrom,
-      onChange: ([userDate]) => {
-        this._state.point.dateFrom = userDate;
-      },
-    });
-
-    this.#dateToPicker = flatpickr(endInput, {
-      enableTime: true,
-      dateFormat: DateFormat.FLATPICKR,
-      defaultDate: point.dateTo,
-      minDate: point.dateFrom,
-      onChange: ([userDate]) => {
-        if (!userDate) {
-          return;
-        }
-        this._state.point.dateTo = userDate;
-      }
-    });
-  }
-
-  setRollupClickHandler(callback) {
-    this.#rollupHandler = () => callback();
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollupHandler);
-  }
-
-  setSubmitClickHandler(callback) {
-    this.#submitHandler = (evt) => callback(evt);
-    this.element.querySelector('.event__save-btn').addEventListener('click', this.#submitHandler);
-  }
-
-  setResetClickHandler(callback) {
-    if (this._state.point.id) {
-      this.#resetHandler = () => callback(this._state.point.id);
-    } else {
-      this.#resetHandler = () => callback();
-    }
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#resetHandler);
   }
 }

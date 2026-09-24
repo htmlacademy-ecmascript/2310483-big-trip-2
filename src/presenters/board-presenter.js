@@ -86,6 +86,10 @@ export default class BoardPresenter {
     return this.#pointsModel.points;
   }
 
+  setfilterResetHandler(filterResetHandler) {
+    this.#filterResetHandler = filterResetHandler;
+  }
+
   init() {
     this.rerender();
     this.#rerenderInfo(this.#sortedPoints);
@@ -99,10 +103,6 @@ export default class BoardPresenter {
   #renderPointsBoard() {
     if (!this.#isCreatorMode && this.#sortedPoints.length === 0) {
       this.#renderEmptyList();
-      return;
-    }
-
-    if (this.#sortedPoints.length === 0) {
       return;
     }
 
@@ -166,10 +166,6 @@ export default class BoardPresenter {
     );
     this.#pointsPresenters.clear();
     this.#destroyEmptyList();
-  }
-
-  setfilterResetHandler(filterResetHandler) {
-    this.#filterResetHandler = filterResetHandler;
   }
 
   #resetFilters() {
