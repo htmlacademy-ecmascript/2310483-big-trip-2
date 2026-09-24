@@ -6,13 +6,13 @@ export default class FiltersPresenter {
   #filtersComponent = null;
   #pointsModel = null;
   #filtersModel = null;
-  #onFilterChange = null;
+  #filterChangeHandler = null;
 
-  constructor({ container, pointsModel, filtersModel, onFilterChange }) {
+  constructor({ container, pointsModel, filtersModel, filterChangeHandler }) {
     this.#pointsModel = pointsModel;
     this.#filtersContainer = container;
     this.#filtersModel = filtersModel;
-    this.#onFilterChange = onFilterChange;
+    this.#filterChangeHandler = filterChangeHandler;
   }
 
   get filters() {
@@ -45,14 +45,14 @@ export default class FiltersPresenter {
       filters: this.filters,
       points: this.points,
       currentFilter: this.currentFilter,
-      onFilterTypeChange: this.#onFilterTypeChange,
+      filterTypeChangeHandler: this.#filterTypeChangeHandler,
     });
     render(this.#filtersComponent, this.#filtersContainer);
   }
 
-  #onFilterTypeChange = (evt) => {
+  #filterTypeChangeHandler = (evt) => {
     evt.preventDefault();
     this.#setCurrentFilter(evt.target.value);
-    this.#onFilterChange?.();
+    this.#filterChangeHandler?.();
   };
 }

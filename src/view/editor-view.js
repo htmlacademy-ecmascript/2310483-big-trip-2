@@ -191,19 +191,19 @@ export default class PointEditorView extends AbstractStatefulView {
   #dateFromPicker = null;
   #dateToPicker = null;
 
-  #onReset = null;
-  #onRollupClick = null;
-  #onSubmit = null;
+  #resetHandler = null;
+  #rollupHandler = null;
+  #submitHandler = null;
 
 
   constructor(data) {
     super();
     this.#parseDataToState(data);
     this.#setDatepickers();
-    this.#handlerTypeChange();
-    this.#handlerDestinationChange();
-    this.#handleOffersChange();
-    this.#handlePriceChange();
+    this.#typeChangeHandler();
+    this.#destinationChangeHandler();
+    this.#offersChangeHandler();
+    this.#priceChangeHandler();
   }
 
   get template() {
@@ -234,19 +234,19 @@ export default class PointEditorView extends AbstractStatefulView {
 
   _restoreHandlers() {
     this.#setDatepickers();
-    this.#handlerTypeChange();
-    this.#handlerDestinationChange();
-    this.#handleOffersChange();
-    this.#handlePriceChange();
+    this.#typeChangeHandler();
+    this.#destinationChangeHandler();
+    this.#offersChangeHandler();
+    this.#priceChangeHandler();
 
-    this.setResetClickHandler(this.#onReset);
+    this.setResetClickHandler(this.#resetHandler);
     if (this._state.point.id) {
-      this.setRollupClickHandler(this.#onRollupClick);
+      this.setRollupClickHandler(this.#rollupHandler);
     }
-    this.setSubmitClickHandler(this.#onSubmit);
+    this.setSubmitClickHandler(this.#submitHandler);
   }
 
-  #handlerTypeChange() {
+  #typeChangeHandler() {
     this.element.querySelector('.event__type-group').addEventListener('change', (evt) => {
       if (!evt.target.matches('.event__type-input')) {
         return;
@@ -256,7 +256,7 @@ export default class PointEditorView extends AbstractStatefulView {
     });
   }
 
-  #handlerDestinationChange() {
+  #destinationChangeHandler() {
     const input = this.element.querySelector('.event__input--destination');
     input.addEventListener('change', (evt) => {
       const destination = this._state.referenceData.destinations.find(({name}) => name === evt.target.value) ?? null;
@@ -273,7 +273,7 @@ export default class PointEditorView extends AbstractStatefulView {
     });
   }
 
-  #handleOffersChange() {
+  #offersChangeHandler() {
     const updatedOffersIds = [...this._state.point.offersIds];
     this.element.querySelectorAll('.event__offer-checkbox').forEach((checkbox) => checkbox.addEventListener('change', (evt) => {
       if (evt.target.checked) {
@@ -285,7 +285,7 @@ export default class PointEditorView extends AbstractStatefulView {
     }));
   }
 
-  #handlePriceChange() {
+  #priceChangeHandler() {
     const input = this.element.querySelector('.event__input--price');
 
     input.addEventListener('change', (evt) => {
@@ -327,21 +327,21 @@ export default class PointEditorView extends AbstractStatefulView {
   }
 
   setRollupClickHandler(callback) {
-    this.#onRollupClick = () => callback();
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#onRollupClick);
+    this.#rollupHandler = () => callback();
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollupHandler);
   }
 
   setSubmitClickHandler(callback) {
-    this.#onSubmit = (evt) => callback(evt);
-    this.element.querySelector('.event__save-btn').addEventListener('click', this.#onSubmit);
+    this.#submitHandler = (evt) => callback(evt);
+    this.element.querySelector('.event__save-btn').addEventListener('click', this.#submitHandler);
   }
 
   setResetClickHandler(callback) {
     if (this._state.point.id) {
-      this.#onReset = () => callback(this._state.point.id);
+      this.#resetHandler = () => callback(this._state.point.id);
     } else {
-      this.#onReset = () => callback();
+      this.#resetHandler = () => callback();
     }
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onReset);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#resetHandler);
   }
 }

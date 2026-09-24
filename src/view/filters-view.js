@@ -21,18 +21,18 @@ const createFiltersTemplate = ({filters, points, currentFilter}) => `
 export default class FiltersView extends AbstractView {
   #filters = null;
   #points = null;
-  #handleFilterTypeChange = null;
+  #filterTypeChangeHandler = null;
   #currentFilter = null;
 
-  constructor({filters, points, currentFilter, onFilterTypeChange}) {
+  constructor({filters, points, currentFilter, filterTypeChangeHandler}) {
     super();
     this.#filters = filters;
     this.#points = points;
     this.#currentFilter = currentFilter;
-    this.#handleFilterTypeChange = onFilterTypeChange;
+    this.#filterTypeChangeHandler = filterTypeChangeHandler;
 
     this.element.querySelectorAll('.trip-filters__filter-input')
-      .forEach((filter) => filter.addEventListener('change', this.#handleFilterTypeChange));
+      .forEach((filter) => filter.addEventListener('change', this.#filterTypeChangeHandler));
   }
 
   get template() {

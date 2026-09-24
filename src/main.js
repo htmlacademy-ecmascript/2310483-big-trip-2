@@ -34,10 +34,10 @@ const boardPresenter = new BoardPresenter({
   pointsModel,
   filtersModel,
   rerenderInfo: tripInfoPresenter.rerenderInfo,
-  onNewButtonDisable: newPointButton.setDisable,
+  newPointDisableHandler: newPointButton.setDisable,
 });
 
-newPointButton.setOpenEditorHandler(() => boardPresenter.handleCreatorOpen());
+newPointButton.setCreatorOpenHandler(() => boardPresenter.creatorOpenHandler());
 
 const loadingComponent = new LoadingView();
 const failedLoadingComponent = new FailedLoadingView();
@@ -46,7 +46,7 @@ const filtersPresenter = new FiltersPresenter({
   container: containers.filters,
   pointsModel,
   filtersModel,
-  onFilterChange: () => boardPresenter.handleFilterTypeChange(),
+  filterChangeHandler: () => boardPresenter.filterTypeChangeHandler(),
 });
 
 (async () => {
@@ -58,7 +58,7 @@ const filtersPresenter = new FiltersPresenter({
     remove(loadingComponent);
 
     render(newPointButton, containers.tripMain, RenderPosition.BEFOREEND);
-    boardPresenter.setOnFilterReset(filtersPresenter.resetFilters);
+    boardPresenter.setfilterResetHandler(filtersPresenter.resetFilters);
     tripInfoPresenter.init({
       destinations: pointsModel.destinations,
       offersData: pointsModel.offersData,

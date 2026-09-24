@@ -4,7 +4,7 @@ const createNewPointButtonTemplate = ({isDisabled}) =>
   `<button class="trip-main__event-add-btn  btn  btn--big  btn--yellow" type="button" ${isDisabled ? 'disabled' : ''}>New event</button>`;
 
 export default class NewPointButtonView extends AbstractStatefulView {
-  #handleEditorOpen = null;
+  #editorOpenHandler = null;
 
   constructor() {
     super();
@@ -19,15 +19,15 @@ export default class NewPointButtonView extends AbstractStatefulView {
   }
 
   _restoreHandlers() {
-    this.setOpenEditorHandler(this.#handleEditorOpen);
+    this.setCreatorOpenHandler(this.#editorOpenHandler);
   }
 
   setDisable = (isDisabled) => {
     this.updateElement({isDisabled});
   };
 
-  setOpenEditorHandler = (callback) => {
-    this.#handleEditorOpen = callback;
-    this.element.addEventListener('click', this.#handleEditorOpen);
+  setCreatorOpenHandler = (callback) => {
+    this.#editorOpenHandler = callback;
+    this.element.addEventListener('click', this.#editorOpenHandler);
   };
 }

@@ -25,7 +25,7 @@ export default class BoardPresenter {
 
   #eventListComponent = new EventListView();
   #emptyListComponent = null;
-  #onNewPointDisable = null;
+  #newPointDisableHandler = null;
   #newPointEditComponent = null;
   #sortComponent = null;
   #uiBlocker = new UiBlocker({
@@ -34,7 +34,7 @@ export default class BoardPresenter {
   });
 
   #isCreatorMode = false;
-  #onFilterReset = null;
+  #filterResetHandler = null;
 
   #pointsPresenters = new Map();
   #currentSortOption = DEFAULT_SORT_OPTION;
@@ -46,13 +46,13 @@ export default class BoardPresenter {
     pointsModel,
     filtersModel,
     rerenderInfo,
-    onNewButtonDisable,
+    newPointDisableHandler,
   }) {
     this.#mainContainer = mainContainer;
     this.#pointsModel = pointsModel;
     this.#filtersModel = filtersModel;
     this.#rerenderInfo = rerenderInfo;
-    this.#onNewPointDisable = onNewButtonDisable;
+    this.#newPointDisableHandler = newPointDisableHandler;
   }
 
   get #filteredPoints() {
@@ -115,7 +115,7 @@ export default class BoardPresenter {
   #renderSort() {
     this.#sortComponent = new SortView({
       sortOptions: SortOptions,
-      onSortTypeChange: this.#handleSortPoints,
+      sortTypeChangeHandler: this.#sortPointsHandler,
       currentSortType: this.#currentSortOption,
     });
 
@@ -144,9 +144,9 @@ export default class BoardPresenter {
       point,
       destinations: this.destinations,
       offersData: this.offersData,
-      onDataUpdate: this.#handlePointChange,
-      onModeChange: this.#handleEditorMode,
-      onPointDelete: this.#handlePointDelete,
+      dataUpdateHandler: this.#pointChangeHandler,
+      editorModeHandler: this.#editorModeHandler,
+      pointDeleteHandler: this.#pointDeleteHandler,
     });
     pointPresenter.init();
     this.#pointsPresenters.set(point.id, pointPresenter);
@@ -168,32 +168,32 @@ export default class BoardPresenter {
     this.#destroyEmptyList();
   }
 
-  setOnFilterReset(onFilterReset) {
-    this.#onFilterReset = onFilterReset;
+  setfilterResetHandler(filterResetHandler) {
+    this.#filterResetHandler = filterResetHandler;
   }
 
   #resetFilters() {
     this.#filtersModel.setCurrentFilter(DEFAULT_FILTER);
-    this.#onFilterReset();
+    this.#filterResetHandler();
     this.#currentSortOption = DEFAULT_SORT_OPTION;
     this.rerender();
   }
 
-  handleFilterTypeChange() {
+  filterTypeChangeHandler() {
     this.#currentSortOption = DEFAULT_SORT_OPTION;
     this.rerender();
   }
 
-  #handleSortPoints = (sortType) => {
-    if (this.#currentSortOption === sortType) {
+  #sortPointsHandler = (evt) => {
+    if (this.#currentSortOption === evt.target.value) {
       return;
     }
 
-    this.#currentSortOption = sortType;
+    this.#currentSortOption = evt.target.value;
     this.rerender();
   };
 
-  #handlePointDelete = async (id) => {
+  #pointDeleteHandler = async (id) => {
     this.#uiBlocker.block();
 
     const pointPresenter = this.#pointsPresenters.get(id);
@@ -209,16 +209,16 @@ export default class BoardPresenter {
     this.#uiBlocker.unblock();
   };
 
-  #handleEditorMode = () => {
+  #editorModeHandler = () => {
     if (this.#isCreatorMode) {
-      this.#handleCreatorClose();
+      this.#creatorCloseHandler();
     }
     this.#pointsPresenters.forEach((pointPresenter) => {
       pointPresenter.resetMode();
     });
   };
 
-  handleCreatorOpen = () => {
+  creatorOpenHandler = () => {
     if (this.#isCreatorMode) {
       return;
     }
@@ -229,7 +229,7 @@ export default class BoardPresenter {
       this.#destroyEmptyList();
     }
 
-    this.#onNewPointDisable(true);
+    this.#newPointDisableHandler(true);
     this.#resetFilters();
 
     this.#newPointEditComponent = new PointEditorView({
@@ -253,27 +253,27 @@ export default class BoardPresenter {
         RenderPosition.AFTERBEGIN,
       );
     }
-    this.#newPointEditComponent.setResetClickHandler(this.#handleCreatorClose);
+    this.#newPointEditComponent.setResetClickHandler(this.#creatorCloseHandler);
     this.#newPointEditComponent.setSubmitClickHandler(
-      this.#handleCreatorSubmit,
+      this.#creatorSubmitHandler,
     );
     document.addEventListener('keydown', this.#escKeyDownHandler);
   };
 
-  #handleCreatorClose = () => {
+  #creatorCloseHandler = () => {
     this.#isCreatorMode = false;
 
     if (this.#sortedPoints.length === 0) {
       this.#renderEmptyList();
     }
 
-    this.#onNewPointDisable(false);
+    this.#newPointDisableHandler(false);
     remove(this.#newPointEditComponent);
     this.#newPointEditComponent = null;
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
-  #handleCreatorSubmit = async (evt) => {
+  #creatorSubmitHandler = async (evt) => {
     this.#uiBlocker.block();
 
     evt.preventDefault();
@@ -285,7 +285,7 @@ export default class BoardPresenter {
         isDisabled: true,
       });
       await this.#pointsModel.createPoint(point);
-      this.#handleCreatorClose();
+      this.#creatorCloseHandler();
       this.rerender();
       this.#rerenderInfo(this.#sortedPoints);
     } catch {
@@ -300,7 +300,7 @@ export default class BoardPresenter {
     this.#uiBlocker.unblock();
   };
 
-  #handlePointChange = async (updatedPoint) => {
+  #pointChangeHandler = async (updatedPoint) => {
     this.#uiBlocker.block();
 
     const pointPresenter = this.#pointsPresenters.get(updatedPoint.id);
@@ -319,7 +319,7 @@ export default class BoardPresenter {
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
-      this.#handleCreatorClose();
+      this.#creatorCloseHandler();
     }
   };
 }
